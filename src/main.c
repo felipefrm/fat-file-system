@@ -25,7 +25,6 @@ union {
 int main() {
     char buffer[100];
     char command[10];
-
     while (1) {
         setbuf(stdin, NULL);
         fgets(buffer, 100, stdin);
@@ -44,8 +43,12 @@ int main() {
         else if (strcmp(command, "write") == 0){}
         else if (strcmp(command, "append") == 0){}
         else if (strcmp(command, "read") == 0){}
+        else if (strcmp(command, "quit") == 0) {
+            break;
+        }
         else {
             printf("Unknown command.\n");
         }
     }
+    return 0;
 }
