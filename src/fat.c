@@ -12,13 +12,16 @@ union {
     uint8_t data[CLUSTER_SIZE];
 } data_cluster;
 
-int init() {
-    FILE *fat_part = fopen("fat.part", "wb");
-    
+FILE *openFAT() {
+    FILE *fat_part = fopen("fat.part", "wb+");
     if (fat_part == NULL) {
         fprintf(stderr, "Erro ao abrir disco FAT fat.part.\n");
-        return 0;
+        return NULL;
     }
+    return fat_part;
+}
+
+int init(FILE *fat_part) {
 
     fat[0] = 0xfffd;
     for (int i = 1; i < 9; i++) {
@@ -45,19 +48,11 @@ int init() {
     for (int i = 0; i < DATA_CLUSTERS_SIZE; i++) 
         fwrite(t, 1, CLUSTER_SIZE, fat_part);
 
-
-    fclose(fat_part);
     return 1;
 }
 
-int load() {
-    FILE *fat_part = fopen("fat.part", "rb+");
+int load(FILE *fat_part) {
     
-    if (fat_part == NULL) {
-        fprintf(stderr, "Erro ao abrir disco FAT fat.part.\n");
-        return 0;
-    }
-
     uint8_t dummy[1024];
     fread(dummy, 1, 1024, fat_part);
 
@@ -65,11 +60,10 @@ int load() {
 
     fread(root_dir, sizeof(dir_entry_t), ENTRY_SIZE, fat_part);
 
-    fclose(fat_part);
     return 1;
 }
 
-int mkdir(char *dir) {
+int mkdir(FILE *fat_part, char *dir) {
 
     int empty_entry = 0;
     for (int empty_entry = 0; empty_entry < ENTRY_SIZE; empty_entry++) {
@@ -96,13 +90,6 @@ int mkdir(char *dir) {
 
     dir_entry_t new_dir[ENTRY_SIZE];
     memset(new_dir, 0, ENTRY_SIZE*sizeof(dir_entry_t));
-
-    FILE *fat_part = fopen("fat.part", "rb+");
-    
-    if (fat_part == NULL) {
-        fprintf(stderr, "Erro ao abrir disco FAT fat.part.\n");
-        return 0;
-    }
 
     fseek(fat_part, CLUSTER_SIZE, SEEK_SET);
     fwrite(fat, sizeof(uint16_t), FAT_ENTRIES, fat_part);

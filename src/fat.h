@@ -17,8 +17,9 @@ typedef struct {
     uint32_t size;
 } dir_entry_t;
 
-int init();
-int load();
-int mkdir(char *dir);
+FILE* openFAT();
+int init(FILE *fat_part);
+int load(FILE *fat_part);
+int mkdir(FILE *fat_part, char *dir);
 
 #endif
