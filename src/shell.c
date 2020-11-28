@@ -1,23 +1,18 @@
 #include <stdio.h>
 #include <string.h>
 #include "fat.h"
+#include "utils.h"
 
 #define BUFFER_SIZE 256
 #define STR_EQUAL(a, b) strcmp(a, b) == 0
 
 int main() {
     char buffer[BUFFER_SIZE];
-    char command[10];
+    char command[16], arg1[120], arg2[120];
     FILE* fat_part = openFAT();
     while(1) {
         printf("fatshell~$ ");
-        setbuf(stdin, NULL);
-        fgets(buffer, sizeof(buffer), stdin);
-        buffer[strcspn(buffer, "\n")] = 0;
-        setbuf(stdin, NULL);
-        for (int i = 0; buffer[i] != ' '; i++)
-            command[i] = buffer[i];        
-
+        getCommand(buffer, command, arg1, arg2);
         if (STR_EQUAL(command, "init")) {
             init(fat_part);
         }
@@ -27,7 +22,9 @@ int main() {
             else 
                 fprintf(stderr, "fat must be initialized.\n");
         }
-        else if (STR_EQUAL(command, "ls")){}
+        else if (STR_EQUAL(command, "ls")){
+            // ls("teste");
+        }
         else if (STR_EQUAL(command, "mkdir")){
             mkdir(fat_part, "teste");
         }

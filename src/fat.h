@@ -21,5 +21,6 @@ FILE* openFAT();
 int init(FILE *fat_part);
 int load(FILE *fat_part);
 int mkdir(FILE *fat_part, char *dir);
+void ls(char* dir);
 
 #endif
