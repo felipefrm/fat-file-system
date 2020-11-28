@@ -100,3 +100,52 @@ int mkdir(FILE *fat_part, char *dir) {
     fwrite(new_dir, sizeof(dir_entry_t), ENTRY_SIZE, fat_part);
 
 }
+
+void ls(char* dir){
+
+    char* token;
+    char *cpy = malloc(strlen(dir)*sizeof(char));
+    strcpy(cpy,dir);
+    token = strtok(cpy,"/");
+    union data_cluster block;
+    
+    if(dir[0] == '/'){
+        block = //read cluster 9
+    }else{
+        printf("Não possui root.\n")
+    }
+
+    while(token != NULL){
+        int i,found = 0;
+        int size = CLUSTER_SIZE / sizeof(dir_entry_t);
+
+        for(i=0; i < size; i++){
+            if(!strcmp(block.dir[i].filename,token)){
+                found = 1;
+                if(block.dir[i].attributes){
+                    block = // read cluster block.dir[i].first_block
+                }else{
+                    printf("%s não é diretório\n",token);
+                }
+                break;
+            }
+        }
+        if(!found){
+            printf("O diretório %s não existe\n",token);
+        }
+        token = strtok(NULL, "/");
+
+    }
+
+    int i;
+    int size_dir = CLUSTER_SIZE / sizeof(dir_entry_t);
+    printf("\n");
+    for (i=0; i<size_dir; i++){
+        if(block.dir[i].first_block != 0){
+            printf("%s \n",block.dir[i].filename);
+        }
+    }
+    
+    
+    free(cpy);
+}
