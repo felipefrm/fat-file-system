@@ -29,16 +29,22 @@ int main() {
 
         int spaces = 0;
         for (int i = 0; i < strlen(buffer); i++) {
-            if (buffer[i] == ' ')
+            if (buffer[i] == ' ') {
+                while (buffer[i] == ' ')
+                    i++;
                 spaces++;
+            }
         }
+
+        // printf("Espaços: %d\n", spaces);
 
         char *token = strtok(buffer, " ");
         for (int j=0; token != NULL; j++) {
             if (j == 0)
                 strcpy(command, token);
-            else if (j == 1)
+            else if (j == 1) {
                 strcpy(arg1, token);
+            }
             else if (j == spaces)
                 strcpy(arg2, token);
             else {
@@ -48,6 +54,8 @@ int main() {
         }
 
         // printf("command: %s\narg1: %s\narg2: %s\n", command, arg1, arg2);
+
+        // printf("%c  %c", arg1[0], arg1[strlen(arg1)-1]);
 
         if (STR_EQUAL(command, "init")) {
             if(fs != NULL)
@@ -82,8 +90,16 @@ int main() {
         else if (STR_EQUAL(command, "unlink")){
             fat_fs_unlink(fs,arg1);
         }
-        else if (STR_EQUAL(command, "write")){}
-        else if (STR_EQUAL(command, "append")){}
+        else if (STR_EQUAL(command, "write")){
+            if (arg1[0] != '"' || arg1[strlen(arg1)-1] != '"') {
+                fprintf(stderr, "A string deve estar entre aspas.\n");
+            }
+        }
+        else if (STR_EQUAL(command, "append")){
+            if (arg1[0] != '"' || arg1[strlen(arg1)-1] != '"') {
+                fprintf(stderr, "A string deve estar entre aspas.\n");
+            }
+        }
         else if (STR_EQUAL(command, "read")){}
         else if (STR_EQUAL(command, "quit")){
             break;
