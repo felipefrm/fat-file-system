@@ -3,7 +3,8 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-
+#define MIN(a,b) (((a)<(b))?(a):(b))
+#define MAX(a,b) (((a)>(b))?(a):(b))
 /* 8 clusters da tabela FAT, 4096 entradas de 16 bits = 8192 bytes*/
 // static uint16_t fat[FAT_ENTRIES];
 // static dir_entry_t root_dir[ENTRY_SIZE];
@@ -345,7 +346,8 @@ void fat_fs_unlink(fat_fs *fs, char *name) {
 
 void fat_fs_write(fat_fs *fs, char *string, char *name) {
   int i, j, empty_entry, num_characters = strlen(string) + 1;
-  int num_required_blocks = ceil((double)num_characters * sizeof(char) / 1024);
+  int num_required_blocks = ceil((double)num_characters * sizeof(char) / CLUSTER_SIZE);
+  //int num_characters_to_write = num_characters;
   dir_entry_t current_dir[ENTRY_SIZE];
   int dir_block;
   char *last_name;
@@ -361,7 +363,7 @@ void fat_fs_write(fat_fs *fs, char *string, char *name) {
   }
 
   if (i == 32) {
-    fprintf(stderr, "Não foi possível criar o arquivo especificado.\n");
+    fprintf(stderr, "Não foi possível escrever no arquivo especificado.\n");
     return;
   }
   uint16_t *block = &current_dir[i].first_block, *next_block = &fs->fat[*block];
@@ -370,7 +372,7 @@ void fat_fs_write(fat_fs *fs, char *string, char *name) {
   uint8_t empty_cluster[CLUSTER_SIZE];
   memset(empty_cluster, 0, CLUSTER_SIZE * sizeof(uint8_t));
   // fseek(fs->fat_part,old_block,SEEK_SET);
-  while (*block != 0xffff || i <= num_required_blocks) {
+  while (*block != 0xffff || i < num_required_blocks) {
     if (i < num_required_blocks) {
       // remove blocks that are not going to be used
       if (*block == 0xffff) {
@@ -381,9 +383,11 @@ void fat_fs_write(fat_fs *fs, char *string, char *name) {
         *block = fat_next_block;
       }
       fseek(fs->fat_part, *block * CLUSTER_SIZE, SEEK_SET);
-      fwrite(string, sizeof(char), i*CLUSTER_SIZE+num_characters % (CLUSTER_SIZE),
+      fwrite(string, sizeof(char), num_characters,
              fs->fat_part);
+      num_characters -= MIN(num_characters,CLUSTER_SIZE);
     }
+    
     if (i >= num_required_blocks) {
       fseek(fs->fat_part, *block * CLUSTER_SIZE, SEEK_SET);
       fwrite(empty_cluster, sizeof(uint8_t), CLUSTER_SIZE, fs->fat_part);
@@ -391,6 +395,8 @@ void fat_fs_write(fat_fs *fs, char *string, char *name) {
     }
     block = next_block;
     next_block = &(fs->fat[*block]);
+    if(num_characters == 0)
+      *block = 0xffff;
     i++;
   }
   if (num_required_blocks == 0) {
@@ -433,8 +439,11 @@ void fat_fs_read(fat_fs *fs, char *name) {
   while (block != 0xffff) {
     fseek(fs->fat_part, block*CLUSTER_SIZE, SEEK_SET);
     fread(block_content, sizeof(char), CLUSTER_SIZE, fs->fat_part);
-    for(int i = 0; i < CLUSTER_SIZE; i++)
+    for(int i = 0; i < CLUSTER_SIZE; i++){
+      if(block_content[i]=='\0')
+        break;
       printf("%c",block_content[i]);
+    }
     block = fs->fat[block];
   }
 }

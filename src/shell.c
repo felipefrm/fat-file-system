@@ -110,10 +110,11 @@ int main() {
         }
         else if (STR_EQUAL(command, "write")){
             if (arg1[0] != '"' || arg1[strlen(arg1)-1] != '"') {
-                fprintf(stderr, "A string deve estar entre aspas.\n");
+                fprintf(stderr, "A string deve estar entre aspas.\n");   
             }
             else {
                 strcpy(arg1, removeQuotes(arg1));
+                fat_fs_write(fs,arg1,arg2);
             }
         }
         else if (STR_EQUAL(command, "append")){
@@ -122,6 +123,7 @@ int main() {
             }
             else {
                 strcpy(arg1, removeQuotes(arg1));
+                //fat_fs_append(fs,arg1,arg2);
             }
         }
         else if (STR_EQUAL(command, "read")){
