@@ -67,6 +67,7 @@ fat_fs *fat_fs_load() {
   fat_fs *fs = malloc(sizeof(fat_fs));
 
   fs->fat_part = fopen("fat.part", "rb+");
+  //setvbuf(fs->fat_part, (char*)NULL, _IONBF, 0);
   if (fs->fat_part == NULL) {
     fprintf(stderr, "Erro ao abrir disco FAT fat.part.\n");
     fat_fs_free(fs);
@@ -182,7 +183,7 @@ void fat_fs_mkdir(fat_fs *fs, char *dir) {
 }
 
 void fat_fs_ls(fat_fs *fs, char *dir) {
-  int n = strlen(dir), i, j, dir_block;
+  int n = strlen(dir), i, dir_block;
   dir_entry_t current_dir[ENTRY_SIZE];
   // memcpy(current_dir, fs->root_dir, sizeof(current_dir));
 
@@ -282,20 +283,28 @@ void fat_fs_unlink(fat_fs *fs, char *name) {
   }
   if (current_dir[i].attributes == 0) {
     // file
-    uint16_t *block = &current_dir[i].first_block,
-             *next_block = &fs->fat[*block];
+    // dir_entry_t file;
+    // fseek(fs->fat_part, current_dir[i].first_block * CLUSTER_SIZE, SEEK_SET);
+    // fread(candidate_dir, sizeof(dir_entry_t), ENTRY_SIZE, fs->fat_part);
+    uint16_t *block = &(current_dir[i].first_block),
+             *next_block = &(fs->fat[*block]);
     uint8_t empty_cluster[CLUSTER_SIZE];
     memset(empty_cluster, 0, CLUSTER_SIZE * sizeof(uint8_t));
     while (*block != 0xffff) {
       fseek(fs->fat_part, *block * CLUSTER_SIZE, SEEK_SET);
       fwrite(empty_cluster, sizeof(uint8_t), CLUSTER_SIZE, fs->fat_part);
       *block = 0x0000;
+      block = next_block;
+      next_block = &(fs->fat[*block]);
     }
     fseek(fs->fat_part, CLUSTER_SIZE, SEEK_SET);
     fwrite(fs->fat, sizeof(uint16_t), FAT_ENTRIES, fs->fat_part);
-    block = next_block;
-    next_block = &(fs->fat[*block]);
-    i++;
+    /* fseek(fs->fat_part, current_dir[i].first_block * CLUSTER_SIZE, SEEK_SET); */
+    /* fread(candidate_dir, sizeof(dir_entry_t), ENTRY_SIZE, fs->fat_part); */
+    memset(&current_dir[i], 0, sizeof(dir_entry_t));
+
+    fseek(fs->fat_part, dir_block * CLUSTER_SIZE, SEEK_SET);
+    fwrite(current_dir, sizeof(dir_entry_t), ENTRY_SIZE, fs->fat_part);
   } else if (current_dir[i].attributes == 1) {
     // dir
     dir_entry_t candidate_dir[ENTRY_SIZE];
@@ -366,7 +375,7 @@ void fat_fs_write(fat_fs *fs, char *string, char *name) {
         *block = fat_next_block;
       }
       fseek(fs->fat_part, *block * CLUSTER_SIZE, SEEK_SET);
-      fwrite(string, sizeof(char), num_characters % (CLUSTER_SIZE * i),
+      fwrite(string, sizeof(char), i*CLUSTER_SIZE+num_characters % (CLUSTER_SIZE),
              fs->fat_part);
     }
     if (i >= num_required_blocks) {
