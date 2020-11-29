@@ -17,14 +17,19 @@ typedef struct {
     uint32_t size;
 } dir_entry_t;
 
-
+typedef struct {
+    uint16_t fat[FAT_ENTRIES];
+    dir_entry_t root_dir[ENTRY_SIZE];
+    FILE *fat_part;
+} fat_fs;
 
 
 // FILE* openFAT();
-int init(FILE **fat_part_);
-int load(FILE **fat_part_);
-int mkdir(FILE *fat_part, char *dir);
-void ls(FILE *fat_prat, char* dir);
-void create(FILE *fat_part,char* name);
+fat_fs* fat_fs_init();
+fat_fs* fat_fs_load();
+void fat_fs_free(fat_fs* fat_fs);
+void fat_fs_mkdir(fat_fs* fat_fs, char *dir);
+void fat_fs_ls(fat_fs* fat_fs, char* dir);
+void fat_fs_create(fat_fs* fat_fs,char* name);
 
 #endif

@@ -9,7 +9,14 @@
 int main() {
     char buffer[BUFFER_SIZE];
     char command[16], arg1[120], arg2[120];
-    FILE* fat_part=NULL;
+    fat_fs* fat_fs=NULL;
+
+    // FILE* fat_part = fopen("fat.part", "wb+");
+    // uint16_t boot = 0xbbbb;
+    // printf("%p\n",fat_part);  
+    // for (int i = 0; i < 512; i++)
+    //     fwrite(&boot, sizeof(boot), 1, fat_part);
+    // fclose(fat_part);
     while(1) {
         printf("fatshell~$ ");
         setbuf(stdin, NULL);
@@ -33,30 +40,30 @@ int main() {
         }
 
         if (STR_EQUAL(command, "init")) {
-            init(&fat_part);
+            if(fat_fs != NULL)
+                fat_fs_free(fat_fs);
+            fat_fs=fat_fs_init();
         }
         else if (STR_EQUAL(command, "load")){
-            if (fat_part == NULL) 
-                load(&fat_part);
-            else 
-                fprintf(stderr, "fat must be initialized.\n");
-
+            if(fat_fs != NULL)
+                fat_fs_free(fat_fs);
+            fat_fs=fat_fs_load();
         }
         else if (STR_EQUAL(command, "ls")){
             if (arg1[0] != '\0') {
-              ls(fat_part,arg1);
+              fat_fs_ls(fat_fs,arg1);
             }
             else
                 fprintf(stderr, "ls [path/directory]\n");
         }
         else if (STR_EQUAL(command, "mkdir")){
           if (arg1[0] != '\0')
-                mkdir(fat_part, arg1);
+                fat_fs_mkdir(fat_fs, arg1);
           else
                 fprintf(stderr, "mkdir [path/directory]\n");
         }
         else if (STR_EQUAL(command, "create")){
-          create(fat_part,arg1);
+          //create(fat_part,arg1);
         }
         else if (STR_EQUAL(command, "unlink")){}
         else if (STR_EQUAL(command, "write")){}
@@ -69,6 +76,6 @@ int main() {
             printf("Unknown command.\n");
         }
     }
-    fclose(fat_part);
+    fat_fs_free(fat_fs);
     return 0;
 }
