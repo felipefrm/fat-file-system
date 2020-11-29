@@ -37,6 +37,8 @@ int main() {
         for (int j=0; token != NULL; j++) {
             if (j == 0)
                 strcpy(command, token);
+            else if (j == 1)
+                strcpy(arg1, token);
             else if (j == spaces)
                 strcpy(arg2, token);
             else {
@@ -44,6 +46,8 @@ int main() {
             }
             token = strtok(NULL, " ");
         }
+
+        // printf("command: %s\narg1: %s\narg2: %s\n", command, arg1, arg2);
 
         if (STR_EQUAL(command, "init")) {
             if(fs != NULL)
