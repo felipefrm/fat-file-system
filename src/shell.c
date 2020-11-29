@@ -27,14 +27,21 @@ int main() {
         arg1[0] = '\0';
         arg2[0] = '\0';
 
+        int spaces = 0;
+        for (int i = 0; i < strlen(buffer); i++) {
+            if (buffer[i] == ' ')
+                spaces++;
+        }
+
         char *token = strtok(buffer, " ");
-        for (int i=0; token != NULL; i++) {
-            if (i == 0)
+        for (int j=0; token != NULL; j++) {
+            if (j == 0)
                 strcpy(command, token);
-            else if (i == 1)
-                strcpy(arg1, token);
-            else if (i == 2)
+            else if (j == spaces)
                 strcpy(arg2, token);
+            else {
+                sprintf(arg1, "%s %s", arg1, token);
+            }
             token = strtok(NULL, " ");
         }
 
