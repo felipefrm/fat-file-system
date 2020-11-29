@@ -406,3 +406,35 @@ void fat_fs_write(fat_fs *fs, char *string, char *name) {
     fwrite(fs->fat, sizeof(uint16_t), FAT_ENTRIES, fs->fat_part);
   }
 }
+
+void fat_fs_read(fat_fs *fs, char *name) {
+  int i, j, empty_entry;
+  dir_entry_t current_dir[ENTRY_SIZE];
+  int dir_block;
+  char *last_name;
+  last_name = fat_fs_find_base_dir(fs, name, current_dir, &dir_block, 1);
+  if (last_name == NULL) {
+    return;
+  }
+  for (i = 0; i < ENTRY_SIZE; i++) {
+    if (current_dir[i].first_block != 0 &&
+        current_dir[i].attributes == 0 &&
+        strcmp((char *)current_dir[i].filename, last_name) == 0) {
+      break;
+    }
+  }
+   if (i == 32) {
+    fprintf(stderr, "Não foi possível ler o arquivo especificado.\n");
+    return;
+  }
+   
+  uint16_t block =current_dir[i].first_block;
+  char block_content[CLUSTER_SIZE];
+  while (block != 0xffff) {
+    fseek(fs->fat_part, block*CLUSTER_SIZE, SEEK_SET);
+    fread(block_content, sizeof(char), CLUSTER_SIZE, fs->fat_part);
+    for(int i = 0; i < CLUSTER_SIZE; i++)
+      printf("%c",block_content[i]);
+    block = fs->fat[block];
+  }
+}

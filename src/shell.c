@@ -126,7 +126,9 @@ int main() {
                 p++[strlen(p)-1] = 0;
             }
         }
-        else if (STR_EQUAL(command, "read")){}
+        else if (STR_EQUAL(command, "read")){
+            fat_fs_read(fs, arg1);
+        }
         else if (STR_EQUAL(command, "quit")){
             break;
         }
