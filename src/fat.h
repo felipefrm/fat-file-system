@@ -1,5 +1,5 @@
-#ifndef FAT
-#define FAT
+#ifndef FAT_H
+#define FAT_H
 
 #include <stdint.h>
 
@@ -17,10 +17,14 @@ typedef struct {
     uint32_t size;
 } dir_entry_t;
 
-FILE* openFAT();
-int init(FILE *fat_part);
-int load(FILE *fat_part);
+
+
+
+// FILE* openFAT();
+int init(FILE **fat_part_);
+int load(FILE **fat_part_);
 int mkdir(FILE *fat_part, char *dir);
-void ls(char* dir);
+void ls(FILE *fat_prat, char* dir);
+void create(FILE *fat_part,char* name);
 
 #endif

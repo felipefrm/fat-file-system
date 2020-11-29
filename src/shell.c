@@ -9,12 +9,12 @@
 int main() {
     char buffer[BUFFER_SIZE];
     char command[16], arg1[120], arg2[120];
-    FILE* fat_part = openFAT();
+    FILE* fat_part=NULL;
     while(1) {
         printf("fatshell~$ ");
         setbuf(stdin, NULL);
         fgets(buffer, sizeof(buffer), stdin);
-        buffer[strcspn(buffer, "\n")] = 0;
+        buffer[strcspn(buffer, "\n")] = '\0';
         setbuf(stdin, NULL);
 
         command[0] = '\0';
@@ -33,28 +33,31 @@ int main() {
         }
 
         if (STR_EQUAL(command, "init")) {
-            init(fat_part);
+            init(&fat_part);
         }
         else if (STR_EQUAL(command, "load")){
-            if (fat_part != NULL) 
-                load(fat_part);
+            if (fat_part == NULL) 
+                load(&fat_part);
             else 
                 fprintf(stderr, "fat must be initialized.\n");
+
         }
         else if (STR_EQUAL(command, "ls")){
             if (arg1[0] != '\0') {
-                // ls(arg1);
+              ls(fat_part,arg1);
             }
             else
                 fprintf(stderr, "ls [path/directory]\n");
         }
         else if (STR_EQUAL(command, "mkdir")){
-            if (arg1[0] != '\0')
+          if (arg1[0] != '\0')
                 mkdir(fat_part, arg1);
-            else
+          else
                 fprintf(stderr, "mkdir [path/directory]\n");
         }
-        else if (STR_EQUAL(command, "create")){}
+        else if (STR_EQUAL(command, "create")){
+          create(fat_part,arg1);
+        }
         else if (STR_EQUAL(command, "unlink")){}
         else if (STR_EQUAL(command, "write")){}
         else if (STR_EQUAL(command, "append")){}
