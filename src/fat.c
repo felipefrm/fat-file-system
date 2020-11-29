@@ -315,7 +315,7 @@ void fat_fs_unlink(fat_fs *fs, char *name) {
     fseek(fs->fat_part, current_dir[i].first_block * CLUSTER_SIZE, SEEK_SET);
     fread(candidate_dir, sizeof(dir_entry_t), ENTRY_SIZE, fs->fat_part);
     for (j = 0; j < ENTRY_SIZE; j++) {
-      if (candidate_dir[j].first_block != 0xffff) {
+      if (candidate_dir[j].first_block != 0x0000){
         break;
       }
     }
