@@ -302,9 +302,13 @@ void fat_fs_unlink(fat_fs *fs, char *name) {
     /* fseek(fs->fat_part, current_dir[i].first_block * CLUSTER_SIZE, SEEK_SET); */
     /* fread(candidate_dir, sizeof(dir_entry_t), ENTRY_SIZE, fs->fat_part); */
     memset(&current_dir[i], 0, sizeof(dir_entry_t));
-
+  
     fseek(fs->fat_part, dir_block * CLUSTER_SIZE, SEEK_SET);
     fwrite(current_dir, sizeof(dir_entry_t), ENTRY_SIZE, fs->fat_part);
+    if (dir_block == 9) {
+      memcpy(fs->root_dir, current_dir, sizeof(fs->root_dir));
+    }
+    
   } else if (current_dir[i].attributes == 1) {
     // dir
     dir_entry_t candidate_dir[ENTRY_SIZE];
@@ -325,6 +329,7 @@ void fat_fs_unlink(fat_fs *fs, char *name) {
 
       fseek(fs->fat_part, dir_block * CLUSTER_SIZE, SEEK_SET);
       fwrite(current_dir, sizeof(dir_entry_t), ENTRY_SIZE, fs->fat_part);
+      
       if (dir_block == 9) {
         memcpy(fs->root_dir, current_dir, sizeof(fs->root_dir));
       }
@@ -335,6 +340,7 @@ void fat_fs_unlink(fat_fs *fs, char *name) {
       fprintf(stderr, "Não é possível deletar o diretório.\n");
     }
   }
+  
 }
 
 void fat_fs_write(fat_fs *fs, char *string, char *name) {
@@ -389,6 +395,11 @@ void fat_fs_write(fat_fs *fs, char *string, char *name) {
   }
   if (num_required_blocks == 0) {
     current_dir[i].first_block = 0xffff;
+  }
+  fseek(fs->fat_part, dir_block * CLUSTER_SIZE, SEEK_SET);
+  fwrite(current_dir, sizeof(dir_entry_t), ENTRY_SIZE, fs->fat_part);    
+  if (dir_block == 9) {
+      memcpy(fs->root_dir, current_dir, sizeof(fs->root_dir));
   }
   if (i >= num_required_blocks) {
     fseek(fs->fat_part, CLUSTER_SIZE, SEEK_SET);

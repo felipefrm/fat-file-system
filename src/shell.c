@@ -107,6 +107,7 @@ int main() {
         else {
             printf("Unknown command.\n");
         }
+        fflush(fs->fat_part);
     }
     fat_fs_free(fs);
     return 0;
