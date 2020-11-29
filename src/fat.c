@@ -100,8 +100,6 @@ void fat_fs_mkdir(fat_fs *fs, char *dir)
   
   int n = strlen(dir), i, j, empty_entry;
   dir_entry_t current_dir[ENTRY_SIZE];
-  //printf("%d\n",sizeof(current_dir));
-  //printf("%p %p\n",current_dir,root_dir);
   memcpy(current_dir, fs->root_dir, sizeof(current_dir));
   int dir_block = 9;
   int num_tokens = 0;
@@ -131,7 +129,7 @@ void fat_fs_mkdir(fat_fs *fs, char *dir)
 
     if (j == 32)
     {
-      fprintf(stderr, "Não foi possível criar o diretorio especificado. Não existe entrada disponivel.\n");
+      fprintf(stderr, "Não foi possível criar o diretorio especificado.\n");
       return;
     }
     dir_block = current_dir[j].first_block;
@@ -263,4 +261,98 @@ void fat_fs_ls(fat_fs *fs, char *dir)
 
 void fat_fs_create(fat_fs *fs, char *name)
 {
+ 
+  int n = strlen(name), i, j, empty_entry;
+  dir_entry_t current_dir[ENTRY_SIZE];
+  memcpy(current_dir, fs->root_dir, sizeof(current_dir));
+  int dir_block = 9;
+  int num_tokens = 0;
+  char *name_copy = malloc((n + 1)*sizeof(char));
+  strcpy(name_copy, name);
+  char *token = strtok(name_copy, "/");
+  while (token != NULL)
+  {
+    num_tokens++;
+    token = strtok(NULL, "/");
+  }
+  free(name_copy);
+  name_copy = NULL;
+
+  token = strtok(name, "/");
+  for (i = 0; i < num_tokens - 1; i++)
+  {
+    for (j = 0; j < ENTRY_SIZE; j++)
+    {
+      if (current_dir[j].first_block != 0 &&
+          current_dir[j].attributes == 1 &&
+          strcmp((char*)current_dir[j].filename, token) == 0)
+      {
+        break;
+      }
+    }
+
+    if (j == 32)
+    {
+      fprintf(stderr, "Não foi possível criar o arquivo especificado.\n");
+      return;
+    }
+    dir_block = current_dir[j].first_block;
+    fseek(fs->fat_part, dir_block * CLUSTER_SIZE, SEEK_SET);
+    fread(current_dir, sizeof(dir_entry_t), ENTRY_SIZE, fs->fat_part);
+    token = strtok(NULL, "/");
+  }
+
+  for (j = 0; j < ENTRY_SIZE; j++)
+  {
+    if (current_dir[j].first_block != 0 &&
+        current_dir[j].attributes == 0 &&
+        strcmp((char*)current_dir[j].filename, token) == 0)
+    {
+      fprintf(stderr, "Não foi possível criar o arquivo especificado, ele já existe.\n");
+      return;
+    }
+  }
+
+  for (empty_entry = 0; empty_entry < ENTRY_SIZE; empty_entry++)
+  {
+    if (current_dir[empty_entry].first_block == 0)
+    {
+      break;
+    }
+  }
+
+  if (empty_entry == 32)
+  {
+    fprintf(stderr, "Não foi possível criar o arquivo especificado.\n");
+    return;
+  }
+  
+  int first_block;
+  for (first_block = 10; first_block < 4096; first_block++)
+  {
+    if (fs->fat[first_block] == 0x0000)
+      break;
+  }
+
+  fs->fat[first_block] = 0xffff;
+
+  strcpy((char*)current_dir[empty_entry].filename, token);
+  current_dir[empty_entry].attributes = 0;
+  current_dir[empty_entry].size = 0;
+  current_dir[empty_entry].first_block = first_block;
+
+  dir_entry_t new_dir[ENTRY_SIZE];
+  memset(new_dir, 0, ENTRY_SIZE * sizeof(dir_entry_t));
+
+  fseek(fs->fat_part, CLUSTER_SIZE, SEEK_SET);
+  fwrite(fs->fat, sizeof(uint16_t), FAT_ENTRIES, fs->fat_part);
+
+  fseek(fs->fat_part, dir_block * CLUSTER_SIZE, SEEK_SET);
+  fwrite(current_dir, sizeof(dir_entry_t), ENTRY_SIZE, fs->fat_part);
+  if(dir_block == 9){  
+    memcpy(fs->root_dir,current_dir, sizeof(current_dir));
+  }
+
+  // fseek(fs->fat_part, first_block * CLUSTER_SIZE, SEEK_SET);
+  // fwrite(new_dir, sizeof(dir_entry_t), ENTRY_SIZE, fs->fat_part);
 }
