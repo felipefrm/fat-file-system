@@ -68,7 +68,9 @@ int main() {
           else
             fprintf(stderr, "create [file name]\n");
         }
-        else if (STR_EQUAL(command, "unlink")){}
+        else if (STR_EQUAL(command, "unlink")){
+            fat_fs_unlink(fs,arg1);
+        }
         else if (STR_EQUAL(command, "write")){}
         else if (STR_EQUAL(command, "append")){}
         else if (STR_EQUAL(command, "read")){}
