@@ -4,16 +4,17 @@
 
 void setArgs(const char *frm, const char *to, char *command, char *arg1, char *arg2, int *iter) {
   int commandIter = 0, commandArg1 = 0, commandArg2 = 0;
-  while (frm < to) {
-      if ((*iter) == 0) {
-        command[commandIter++] = *frm++;
-      }
-      else if ((*iter) == 1) {
-        arg1[commandArg1++] = *frm++;
-      }
-      else {
-        arg2[commandArg2++] = *frm++;
-      }
+  if ((*iter) == 0) {
+    while (frm < to) 
+      command[commandIter++] = *frm++;
+  }
+  else if ((*iter) == 1) {
+    while (frm < to) 
+      arg1[commandArg1++] = *frm++;
+  }
+  else if((*iter)==2) {
+    while (frm < to) 
+      arg2[commandArg2++] = *frm++;
   }
   (*iter)++;
 }
@@ -24,29 +25,29 @@ void splitUserInput(const char *s, char *command, char *arg1, char *arg2) {
   int state = ' ';
   while (*s) {
     switch (state) {
-      case '\n': // Could add various white-space here like \f \t \r \v
-      case ' ': // Consuming spaces
-        if (*s == '\"') {
-          start = s;
-          state = '\"';  // begin quote
-        } else if (*s != ' ') {
-          start = s;
-          state = 'T';
-        }
-        break;
-      case 'T': // non-quoted text
-        if (*s == ' ') {
-          setArgs(start, s, command, arg1, arg2, &iter);
-          state = ' ';
-        } else if (*s == '\"') {
-          state = '\"'; // begin quote
-        }
-        break;
-      case '\"': // Inside a quote
-        if (*s == '\"') {
-          state = 'T'; // end quote
-        }
-        break;
+    case '\n': // Could add various white-space here like \f \t \r \v
+    case ' ': // Consuming spaces
+      if (*s == '\"') {
+        start = s;
+        state = '\"';  // begin quote
+      } else if (*s != ' ') {
+        start = s;
+        state = 'T';
+      }
+      break;
+    case 'T': // non-quoted text
+      if (*s == ' ') {
+        setArgs(start, s, command, arg1, arg2, &iter);
+        state = ' ';
+      } else if (*s == '\"') {
+        state = '\"'; // begin quote
+      }
+      break;
+    case '\"': // Inside a quote
+      if (*s == '\"') {
+        state = 'T'; // end quote
+      }
+      break;
     }
     s++;
   } // end while
