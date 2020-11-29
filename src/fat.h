@@ -2,6 +2,7 @@
 #define FAT_H
 
 #include <stdint.h>
+#include <stdio.h>
 
 #define CLUSTER_SIZE 1024
 #define FAT_ENTRIES 4096
