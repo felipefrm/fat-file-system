@@ -2,19 +2,21 @@
 #include <stdlib.h>
 #include <string.h>
 
-void setArgs(const char *frm, const char *to, char *command, char *arg1, char *arg2, int *iter) {
+void setArgs(const char *frm, const char *to, char *command, char *arg1,
+             char *arg2, int *iter) {
   int commandIter = 0, commandArg1 = 0, commandArg2 = 0;
   if ((*iter) == 0) {
-    while (frm < to) 
+    while (frm < to)
       command[commandIter++] = *frm++;
-  }
-  else if ((*iter) == 1) {
-    while (frm < to) 
+    command[commandIter] = '\0';
+  } else if ((*iter) == 1) {
+    while (frm < to)
       arg1[commandArg1++] = *frm++;
-  }
-  else if((*iter)==2) {
-    while (frm < to) 
+    arg1[commandArg1] = '\0';
+  } else if ((*iter) == 2) {
+    while (frm < to)
       arg2[commandArg2++] = *frm++;
+    arg2[commandArg2] = '\0';
   }
   (*iter)++;
 }
@@ -26,10 +28,10 @@ void splitUserInput(const char *s, char *command, char *arg1, char *arg2) {
   while (*s) {
     switch (state) {
     case '\n': // Could add various white-space here like \f \t \r \v
-    case ' ': // Consuming spaces
+    case ' ':  // Consuming spaces
       if (*s == '\"') {
         start = s;
-        state = '\"';  // begin quote
+        state = '\"'; // begin quote
       } else if (*s != ' ') {
         start = s;
         state = 'T';
@@ -55,8 +57,7 @@ void splitUserInput(const char *s, char *command, char *arg1, char *arg2) {
     setArgs(start, s, command, arg1, arg2, &iter);
   }
 
-  command[strlen(command)] = '\0';
-  arg1[strlen(arg1)] = '\0';
-  arg2[strlen(arg2)] = '\0';
-
+  // command[strlen(command)] = '\0';
+  // arg1[strlen(arg1)] = '\0';
+  // arg2[strlen(arg2)] = '\0';
 }
