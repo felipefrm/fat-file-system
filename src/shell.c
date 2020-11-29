@@ -115,6 +115,7 @@ int main() {
             else {
                 char *p = arg1;
                 p++[strlen(p)-1] = 0;
+                fat_fs_write(fs, arg1,arg2);
             }
         }
         else if (STR_EQUAL(command, "append")){
