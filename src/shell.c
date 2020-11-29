@@ -22,35 +22,58 @@ int main() {
         arg1[0] = '\0';
         arg2[0] = '\0';
 
-        int spaces = 0;
-        for (int i = 0; i < strlen(buffer); i++) {
-            if (buffer[i] == ' ') {
-                while (buffer[i] == ' ')
-                    i++;
-                spaces++;
-            }
-        }
+        splitUserInput(buffer, command, arg1, arg2);
+        printf("command: %s\narg1: %s\narg2: %s\n", command, arg1, arg2);
 
-        // printf("Espaços: %d\n", spaces);
 
-        char *token = strtok(buffer, " ");
-        for (int j=0; token != NULL; j++) {
-            if (j == 0)
-                strcpy(command, token);
-            else if (j == 1) {
-                strcpy(arg1, token);
-            }
-            else if (j == spaces)
-                strcpy(arg2, token);
-            else {
-                sprintf(arg1, "%s %s", arg1, token);
-            }
-            token = strtok(NULL, " ");
-        }
+
+        // int spaces = 0;
+        // for (int i = 0; i < strlen(buffer); i++) {
+        //     if (buffer[i] == ' ') {
+        //         while (buffer[i] == ' ')
+        //             i++;
+        //         spaces++;
+        //     }
+        // }
+
+        // // printf("Espaços: %d\n", spaces);
+
+        // char *token = strtok(buffer, " ");
+        // strcpy(command, token);
+        // int start = -1, end;
+        // if (STR_EQUAL(command, "write") || STR_EQUAL(command, "append")) {
+        //     for (int i = 0; i < strlen(buffer); i++) {
+        //         printf("indice: %d / char: %c\n", i, buffer[i]);
+        //         if (buffer[i] == '"' && start < 0) {
+        //             start = i;
+        //         }
+        //         if (buffer[i] == '"' && start > 0) {
+        //             end = i;
+        //         }
+        //     }
+        //     printf("%d %d\n", start, end);
+        //     for (int i = start+1, j = 0; i < end; i++, j++) {
+        //         arg1[j] = buffer[i];
+        //     }
+        // }
+
+        // else {
+        //     for (int j=0; token != NULL; j++) {
+        //         if (j == 0)
+        //             strcpy(command, token);
+        //         else if (j == 1) {
+        //             strcpy(arg1, token);
+        //         }
+        //         else if (j == spaces)
+        //             strcpy(arg2, token);
+        //         else {
+        //             sprintf(arg1, "%s %s", arg1, token);
+        //         }
+        //         token = strtok(NULL, " ");
+        //     }
+        // }
 
         // printf("command: %s\narg1: %s\narg2: %s\n", command, arg1, arg2);
-
-        // printf("%c  %c", arg1[0], arg1[strlen(arg1)-1]);
 
         if (STR_EQUAL(command, "init")) {
             if(fs != NULL)
@@ -110,7 +133,7 @@ int main() {
         else {
             printf("Unknown command.\n");
         }
-        // fflush(fs->fat_part);
+        fflush(fs->fat_part);
     }
     fat_fs_free(fs);
     return 0;
