@@ -57,7 +57,12 @@ void splitUserInput(const char *s, char *command, char *arg1, char *arg2) {
     setArgs(start, s, command, arg1, arg2, &iter);
   }
 
-  // command[strlen(command)] = '\0';
-  // arg1[strlen(arg1)] = '\0';
-  // arg2[strlen(arg2)] = '\0';
+}
+
+char* removeQuotes(const char *string) {
+    char *p = string;
+    p++;
+    p[strlen(p)-1] = 0;
+    printf("%s\n", p);
+    return p;
 }
