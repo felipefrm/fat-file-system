@@ -10,7 +10,6 @@ int main() {
     char buffer[BUFFER_SIZE];
     char command[16], arg1[120], arg2[120];
     fat_fs* fat_fs=NULL;
-
     // FILE* fat_part = fopen("fat.part", "wb+");
     // uint16_t boot = 0xbbbb;
     // printf("%p\n",fat_part);  
