@@ -10,12 +10,7 @@ int main() {
     char buffer[BUFFER_SIZE];
     char command[16], arg1[120], arg2[120];
     fat_fs* fs=NULL;
-    // FILE* fat_part = fopen("fat.part", "wb+");
-    // uint16_t boot = 0xbbbb;
-    // printf("%p\n",fat_part);  
-    // for (int i = 0; i < 512; i++)
-    //     fwrite(&boot, sizeof(boot), 1, fat_part);
-    // fclose(fat_part);
+    
     while(1) {
         printf("fatshell~$ ");
         setbuf(stdin, NULL);
@@ -94,10 +89,18 @@ int main() {
             if (arg1[0] != '"' || arg1[strlen(arg1)-1] != '"') {
                 fprintf(stderr, "A string deve estar entre aspas.\n");
             }
+            else {
+                char *p = arg1;
+                p++[strlen(p)-1] = 0;
+            }
         }
         else if (STR_EQUAL(command, "append")){
             if (arg1[0] != '"' || arg1[strlen(arg1)-1] != '"') {
                 fprintf(stderr, "A string deve estar entre aspas.\n");
+            }
+            else {
+                char *p = arg1;
+                p++[strlen(p)-1] = 0;
             }
         }
         else if (STR_EQUAL(command, "read")){}
@@ -107,7 +110,7 @@ int main() {
         else {
             printf("Unknown command.\n");
         }
-        fflush(fs->fat_part);
+        // fflush(fs->fat_part);
     }
     fat_fs_free(fs);
     return 0;
