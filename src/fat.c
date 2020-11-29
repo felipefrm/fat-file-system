@@ -143,7 +143,6 @@ void fat_fs_mkdir(fat_fs *fs, char *dir)
   for (j = 0; j < ENTRY_SIZE; j++)
   {
     if (current_dir[j].first_block != 0 &&
-        current_dir[j].attributes == 1 &&
         strcmp((char*)current_dir[j].filename, last_name) == 0)
     {
       fprintf(stderr, "Não foi possível criar o diretorio especificado, ele já existe.\n");
@@ -232,7 +231,6 @@ void fat_fs_create(fat_fs *fs, char *name)
   for (j = 0; j < ENTRY_SIZE; j++)
   {
     if (current_dir[j].first_block != 0 &&
-        current_dir[j].attributes == 0 &&
         strcmp((char*)current_dir[j].filename, last_name) == 0)
     {
       fprintf(stderr, "Não foi possível criar o arquivo especificado, ele já existe.\n");
@@ -281,27 +279,34 @@ void fat_fs_create(fat_fs *fs, char *name)
   }
 }
 
-// void fat_fs_unlink(fat_fs *fs, char *name)
-// {
+void fat_fs_unlink(fat_fs *fs, char *name)
+{
  
-//   int n = strlen(name), i, j,empty_entry;
-//   dir_entry_t current_dir[ENTRY_SIZE];
-//   //memcpy(current_dir, fs->root_dir, sizeof(current_dir));
-//   int dir_block;
-//   char *last_name;
-//   last_name = fat_fs_find_base_dir(fs,name,current_dir,&dir_block,1);
-//   if(last_name == NULL){
-//     return;
-//   }
-//   for (empty_entry = 0; empty_entry < ENTRY_SIZE; empty_entry++){
-//     if (current_dir[empty_entry].first_block == 0){
-//       break;
-//     }
-//   }
+  int n = strlen(name), i, j,empty_entry;
+  dir_entry_t current_dir[ENTRY_SIZE];
+  int dir_block;
+  char *last_name;
+  last_name = fat_fs_find_base_dir(fs,name,current_dir,&dir_block,1);
+  if(last_name == NULL){
+    return;
+  }
+  for (j = 0; j < ENTRY_SIZE; j++){
+    if (current_dir[j].first_block != 0 &&
+        current_dir[j].attributes == 0 &&
+        strcmp((char*)current_dir[j].filename, last_name) == 0){
+      fprintf(stderr, "Não foi possível criar o arquivo especificado, ele já existe.\n");
+      return;
+    }
+  }
+  for (empty_entry = 0; empty_entry < ENTRY_SIZE; empty_entry++){
+    if (current_dir[empty_entry].first_block == 0){
+      break;
+    }
+  }
 
-//   if (empty_entry == 32)
-//   {
-//     fprintf(stderr, "Não foi possível criar o arquivo especificado.\n");
-//     return;
-//   }
-// }
+  if (empty_entry == 32)
+  {
+    fprintf(stderr, "Não foi possível criar o arquivo especificado.\n");
+    return;
+  }
+}
