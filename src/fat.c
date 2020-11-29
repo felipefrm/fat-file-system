@@ -253,19 +253,19 @@ void fat_fs_create(fat_fs *fs, char *name)
     return;
   }
   
-  int first_block;
-  for (first_block = 10; first_block < 4096; first_block++)
-  {
-    if (fs->fat[first_block] == 0x0000)
-      break;
-  }
+  // int first_block;
+  // for (first_block = 10; first_block < 4096; first_block++)
+  // {
+  //   if (fs->fat[first_block] == 0x0000)
+  //     break;
+  // }
 
-  fs->fat[first_block] = 0xffff;
+  // fs->fat[first_block] = 0xffff;
 
   strcpy((char*)current_dir[empty_entry].filename, last_name);
   current_dir[empty_entry].attributes = 0;
   current_dir[empty_entry].size = 0;
-  current_dir[empty_entry].first_block = first_block;
+  current_dir[empty_entry].first_block = 0xffff;
 
   // dir_entry_t new_dir[ENTRY_SIZE];
   // memset(new_dir, 0, ENTRY_SIZE * sizeof(dir_entry_t));
@@ -311,7 +311,7 @@ void fat_fs_unlink(fat_fs *fs, char *name)
     fseek(fs->fat_part, current_dir[i].first_block * CLUSTER_SIZE, SEEK_SET);
     fread(candidate_dir, sizeof(dir_entry_t), ENTRY_SIZE, fs->fat_part);
     for (j = 0;j < ENTRY_SIZE; j++){
-      if(candidate_dir[j].first_block != 0){
+      if(candidate_dir[j].first_block != 0xffff){
         break;
       }
     }
@@ -359,32 +359,32 @@ void fat_fs_write(fat_fs *fs, char *string, char *name){
     fprintf(stderr, "Não foi possível criar o arquivo especificado.\n");
     return;
   }
-  uint16_t block=current_dir[i].first_block,next_block=fs->fat[block];
+  uint16_t *block=&current_dir[i].first_block,*next_block=&fs->fat[*block];
   i=0;
   int fat_next_block=10;
   uint8_t empty_cluster[CLUSTER_SIZE];
   memset(empty_cluster,0,CLUSTER_SIZE*sizeof(uint8_t));
   // fseek(fs->fat_part,old_block,SEEK_SET);
-  while (block != 0xffff || i <= num_required_blocks) {
+  while (*block != 0xffff || i <= num_required_blocks) {
     if (i < num_required_blocks) {
     // remove blocks that are not going to be used
-      if (block == 0xffff) {
-        for (; fat_next_block < 4096; fat_next_block++) {
+      if (*block == 0xffff) {
+        for (;fat_next_block < 4096; fat_next_block++) {
           if (fs->fat[fat_next_block] == 0x0000)
             break;
         }
-        block = fat_next_block;
+        *block = fat_next_block;
       }
-      fseek(fs->fat_part,block*CLUSTER_SIZE,SEEK_SET);
+      fseek(fs->fat_part,*block*CLUSTER_SIZE,SEEK_SET);
       fwrite(string,sizeof(char),num_characters%(CLUSTER_SIZE*i),fs->fat_part);
     }
     if (i >= num_required_blocks) {
-      fseek(fs->fat_part,block*CLUSTER_SIZE,SEEK_SET);
+      fseek(fs->fat_part,*block*CLUSTER_SIZE,SEEK_SET);
       fwrite(empty_cluster,sizeof(uint8_t),CLUSTER_SIZE,fs->fat_part);
-      fs->fat[block]=0x0000;
+      *block=0x0000;
     }
     block = next_block;
-    next_block=fs->fat[block]
+    next_block=&(fs->fat[*block]);
     i++;
   }
   if(num_required_blocks == 0){

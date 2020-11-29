@@ -32,5 +32,5 @@ void fat_fs_mkdir(fat_fs* fs, char *dir);
 void fat_fs_ls(fat_fs* fs, char* dir);
 void fat_fs_create(fat_fs* fs,char* name);
 void fat_fs_unlink(fat_fs *fs, char *name);
-
+void fat_fs_write(fat_fs *fs, char *string, char *name);
 #endif
