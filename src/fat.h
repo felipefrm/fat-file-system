@@ -36,4 +36,5 @@ void fat_fs_unlink(fat_fs *fs, char *name);
 
 void fat_fs_write(fat_fs *fs, char *string, char *name);
 void fat_fs_read(fat_fs *fs, char *name);
+void fat_fs_append(fat_fs *fs, char *string, char *name);
 #endif
