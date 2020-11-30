@@ -26,7 +26,7 @@ int main() {
         splitUserInput(buffer, command, arg1, arg2);
 
         if (start == 0 && !STR_EQUAL(command, "init") && 
-            !STR_EQUAL(command, "load") && !STR_EQUAL(command, "init")) {
+            !STR_EQUAL(command, "load") && !STR_EQUAL(command, "quit")) {
             fprintf(stderr, 
             "Antes de executar qualquer operação com a FAT é necessário "
             "inicializar (init) ou carregar (load) a partição.\n");
