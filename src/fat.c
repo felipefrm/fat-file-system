@@ -410,9 +410,12 @@ void fat_fs_write(fat_fs *fs, char *string, char *name) {
     }
     block = next_block;
     next_block = &(fs->fat[*block]);
-    if(num_characters == 0)
-      *block = 0xffff;
+    // if(num_characters == 0)
+    //   *block = 0xffff;
     i++;
+  }
+  if (i > num_required_blocks || num_characters == 0){
+    *block = 0xffff;
   }
   if (num_required_blocks == 0) {
     current_dir[i].first_block = 0xffff;
