@@ -3,7 +3,7 @@
 #include <string.h>
 #include <assert.h>
 
-void setArgs(const char *frm, const char *to, char *command, char *arg1,
+void set_args(const char *frm, const char *to, char *command, char *arg1,
              char *arg2, int *iter) {
   int commandIter = 0, commandArg1 = 0, commandArg2 = 0;
   if ((*iter) == 0) {
@@ -22,7 +22,7 @@ void setArgs(const char *frm, const char *to, char *command, char *arg1,
   (*iter)++;
 }
 
-void splitUserInput(const char *s, char *command, char *arg1, char *arg2) {
+void split_user_input(const char *s, char *command, char *arg1, char *arg2) {
   const char *start;
   int iter = 0;
   int state = ' ';
@@ -40,7 +40,7 @@ void splitUserInput(const char *s, char *command, char *arg1, char *arg2) {
       break;
     case 'T': // non-quoted text
       if (*s == ' ') {
-        setArgs(start, s, command, arg1, arg2, &iter);
+        set_args(start, s, command, arg1, arg2, &iter);
         state = ' ';
       } else if (*s == '\"') {
         state = '\"'; // begin quote
@@ -55,12 +55,12 @@ void splitUserInput(const char *s, char *command, char *arg1, char *arg2) {
     s++;
   } // end while
   if (state != ' ') {
-    setArgs(start, s, command, arg1, arg2, &iter);
+    set_args(start, s, command, arg1, arg2, &iter);
   }
 
 }
 
-void removeQuotes(char *str) {
+void remove_quotes(char *str) {
     size_t len = strlen(str);
     assert(len >= 2);
     memmove(str, str+1, len-2);

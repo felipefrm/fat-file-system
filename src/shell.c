@@ -23,7 +23,7 @@ int main() {
         arg1[0] = '\0';
         arg2[0] = '\0';
 
-        splitUserInput(buffer, command, arg1, arg2);
+        split_user_input(buffer, command, arg1, arg2);
 
         if (start == 0 && !STR_EQUAL(command, "init") && 
             !STR_EQUAL(command, "load") && !STR_EQUAL(command, "quit")) {
@@ -80,7 +80,7 @@ int main() {
                 else if (arg1[0] != '"' || arg1[strlen(arg1)-1] != '"') 
                     fprintf(stderr, "A string deve estar entre aspas.\n");   
                 else {
-                    removeQuotes(arg1);
+                    remove_quotes(arg1);
                     printf("%s\n",arg1);
                     fat_fs_write(fs,arg1,arg2);
                 }
@@ -93,7 +93,7 @@ int main() {
                     fprintf(stderr, "A string deve estar entre aspas.\n");
                 else {
                     //snprintf(arg1, sizeof(arg1), "%s", removeQuotes(arg1));
-                    removeQuotes(arg1);
+                    remove_quotes(arg1);
                     //fat_fs_append(fs,arg1,arg2);
                 }
             }
