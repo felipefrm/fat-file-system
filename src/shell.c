@@ -80,7 +80,8 @@ int main() {
                 else if (arg1[0] != '"' || arg1[strlen(arg1)-1] != '"') 
                     fprintf(stderr, "A string deve estar entre aspas.\n");   
                 else {
-                    snprintf(arg1, sizeof(arg1), "%s", removeQuotes(arg1));
+                    removeQuotes(arg1);
+                    printf("%s\n",arg1);
                     fat_fs_write(fs,arg1,arg2);
                 }
             }
@@ -91,7 +92,8 @@ int main() {
                 else if (arg1[0] != '"' || arg1[strlen(arg1)-1] != '"') 
                     fprintf(stderr, "A string deve estar entre aspas.\n");
                 else {
-                    snprintf(arg1, sizeof(arg1), "%s", removeQuotes(arg1));
+                    //snprintf(arg1, sizeof(arg1), "%s", removeQuotes(arg1));
+                    removeQuotes(arg1);
                     //fat_fs_append(fs,arg1,arg2);
                 }
             }

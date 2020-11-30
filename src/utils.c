@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <assert.h>
 
 void setArgs(const char *frm, const char *to, char *command, char *arg1,
              char *arg2, int *iter) {
@@ -59,10 +60,9 @@ void splitUserInput(const char *s, char *command, char *arg1, char *arg2) {
 
 }
 
-char* removeQuotes(char *string) {
-    char *p = string;
-    p++;
-    p[strlen(p)-1] = 0;
-    printf("%s\n", p);
-    return p;
+void removeQuotes(char *str) {
+    size_t len = strlen(str);
+    assert(len >= 2);
+    memmove(str, str+1, len-2);
+    str[len-2] = '\0';
 }
