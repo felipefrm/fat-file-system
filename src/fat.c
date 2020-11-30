@@ -133,7 +133,7 @@ void fat_fs_mkdir(fat_fs *fs, char *dir) {
   int dir_block;
   char *last_name;
   last_name = fat_fs_find_base_dir(fs, dir, current_dir, &dir_block, 1);
-  if (last_name == NULL) {
+  if (dir_block == -1 && last_name == NULL) {
     fprintf(stderr, "Não foi possível criar o diretorio especificado.\n");
     return;
   }
@@ -221,7 +221,7 @@ void fat_fs_create(fat_fs *fs, char *name) {
   int dir_block;
   char *last_name;
   last_name = fat_fs_find_base_dir(fs, name, current_dir, &dir_block, 1);
-  if (last_name == NULL) {
+  if (dir_block == -1 && last_name == NULL) {
     fprintf(stderr, "Não foi possível criar o arquivo especificado.\n");
     return;
   }
@@ -281,7 +281,7 @@ void fat_fs_unlink(fat_fs *fs, char *name) {
   int dir_block;
   char *last_name;
   last_name = fat_fs_find_base_dir(fs, name, current_dir, &dir_block, 1);
-  if (last_name == NULL) {
+  if (dir_block == -1 && last_name == NULL) {
     fprintf(stderr, "Não foi possível deletar o arquivo/diretório especificado.\n");
     return;
   }
@@ -366,7 +366,7 @@ void fat_fs_write(fat_fs *fs, char *string, char *name) {
   int dir_block;
   char *last_name;
   last_name = fat_fs_find_base_dir(fs, name, current_dir, &dir_block, 1);
-  if (last_name == NULL) {
+  if (dir_block == -1 && last_name == NULL) {
     fprintf(stderr, "Não foi possível escrever no arquivo especificado.\n");
     return;
   }
@@ -434,7 +434,7 @@ void fat_fs_read(fat_fs *fs, char *name) {
   int dir_block;
   char *last_name;
   last_name = fat_fs_find_base_dir(fs, name, current_dir, &dir_block, 1);
-  if (last_name == NULL) {
+  if (dir_block == -1 && last_name == NULL) {
     fprintf(stderr, "Não foi possível ler o arquivo especificado.\n");
     return;
   }
