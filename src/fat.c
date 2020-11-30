@@ -387,7 +387,7 @@ void fat_fs_write(fat_fs *fs, char *string, char *name) {
   uint8_t empty_cluster[CLUSTER_SIZE];
   memset(empty_cluster, 0, CLUSTER_SIZE * sizeof(uint8_t));
   // fseek(fs->fat_part,old_block,SEEK_SET);
-  while (*block != 0xffff || i < num_required_blocks) {
+  while (*block != 0xffff || i < num_required_blocks) {,
     if (i < num_required_blocks) {
       // remove blocks that are not going to be used
       if (*block == 0xffff) {
@@ -489,44 +489,37 @@ void fat_fs_append(fat_fs *fs, char *string, char *name) {
     fprintf(stderr, "Não foi possível escrever no arquivo especificado.\n");
     return;
   }
+  
   uint16_t *block = &current_dir[i].first_block, *next_block = &fs->fat[*block];
   i = 0;
   int fat_next_block = 10;
   uint8_t empty_cluster[CLUSTER_SIZE];
   memset(empty_cluster, 0, CLUSTER_SIZE * sizeof(uint8_t));
   // fseek(fs->fat_part,old_block,SEEK_SET);
-  while (*block != 0xffff || i < num_required_blocks) {
-    if (i < num_required_blocks) {
-      // remove blocks that are not going to be used
-      if (*block == 0xffff) {
-        for (; fat_next_block < 4096; fat_next_block++) {
-          if (fs->fat[fat_next_block] == 0x0000)
-            break;
-        }
-        *block = fat_next_block;
-      }
-      fseek(fs->fat_part, *block * CLUSTER_SIZE, SEEK_SET);
-      fwrite(newstring, sizeof(char), num_characters,
-             fs->fat_part);
-      num_characters -= MIN(num_characters,CLUSTER_SIZE);
-    }
-    
-    if (i >= num_required_blocks) {
-      fseek(fs->fat_part, *block * CLUSTER_SIZE, SEEK_SET);
-      fwrite(empty_cluster, sizeof(uint8_t), CLUSTER_SIZE, fs->fat_part);
-      *block = 0x0000;
-    }
+  while (*block != 0xffff) {
+    fseek(fs->fat_part, block*CLUSTER_SIZE, SEEK_SET);
+    fread(block_content, sizeof(char), CLUSTER_SIZE, fs->fat_part);
     block = next_block;
     next_block = &(fs->fat[*block]);
     if(num_characters == 0 ||i > num_required_blocks)
       *block = 0xffff;
+    if(*block = 0xffff)
+       break;
     i++;
   }
-  if (num_required_blocks == 0) {
-    current_dir[i].first_block = 0xffff;
-  }
-  fseek(fs->fat_part, dir_block * CLUSTER_SIZE, SEEK_SET);
-  fwrite(current_dir, sizeof(dir_entry_t), ENTRY_SIZE, fs->fat_part);    
+  int end = strlen(&fs->fat[i])
+
+  fseek(fs->fat_part, dir_block * CLUSTER_SIZE + end, SEEK_SET);
+  fwrite(current_dir, sizeof(dir_entry_t), ENTRY_SIZE, fs->fat_part);  
+  for (j = 0; j < CLUSTER_SIZE; j ++){
+		if (letters >= len(newstring)){
+            break;
+            }
+			if (&fs->fat[j] == 0x0000){
+				&fs->fat[j] = newstring[letters];
+		letters++;
+	}
+    
   if (dir_block == 9) {
       memcpy(fs->root_dir, current_dir, sizeof(fs->root_dir));
   }
