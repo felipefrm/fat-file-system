@@ -16,7 +16,7 @@ int main() {
     int start = 0;
 
     while(1) {
-        printf("fatshell~$ ");
+        printf("%sfatshell~$ %s", GREEN, RESET);
         setbuf(stdin, NULL);
         fgets(buffer, sizeof(buffer), stdin);
         buffer[strcspn(buffer, "\n")] = '\0';

@@ -2,6 +2,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <assert.h>
+#include "utils.h"
 
 void set_args(const char *frm, const char *to, char *command, char *arg1,
              char *arg2, int *iter) {
@@ -65,4 +66,13 @@ void remove_quotes(char *str) {
     assert(len >= 2);
     memmove(str, str+1, len-2);
     str[len-2] = '\0';
+}
+
+void print_pipe(int j, int count) {
+      if (count == 1 || (j > 0 && j < count-1))
+        printf("%s├ %s", BLUE, RESET);
+      else if (j == 0)
+        printf("%s┌ %s", BLUE, RESET);
+      else if (j == count-1)
+        printf("%s└ %s", BLUE, RESET);
 }

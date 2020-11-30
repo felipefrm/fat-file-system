@@ -1,4 +1,5 @@
 #include "fat.h"
+#include "utils.h"
 #include <math.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -189,6 +190,7 @@ void fat_fs_mkdir(fat_fs *fs, char *dir) {
 }
 
 void fat_fs_ls(fat_fs *fs, char *dir) {
+
   int n = strlen(dir), i, dir_block;
   dir_entry_t current_dir[ENTRY_SIZE];
   // memcpy(current_dir, fs->root_dir, sizeof(current_dir));
@@ -202,13 +204,24 @@ void fat_fs_ls(fat_fs *fs, char *dir) {
     return;
   }
   
+  int count = 0;
   for (i = 0; i < ENTRY_SIZE; i++) {
     if (current_dir[i].first_block != 0) {
+      count++;
+    }
+  }
+
+  for (int i = 0, j = 0; i < ENTRY_SIZE; i++) {
+    if (current_dir[i].first_block != 0) {
+      
+      print_pipe(j, count);
+
       if (current_dir[i].attributes == 0) {
         printf("%s\n", current_dir[i].filename);
       } else if (current_dir[i].attributes == 1) {
         printf("%s/\n", current_dir[i].filename);
       }
+      j++;
     }
   }
 }
@@ -387,7 +400,7 @@ void fat_fs_write(fat_fs *fs, char *string, char *name) {
   uint8_t empty_cluster[CLUSTER_SIZE];
   memset(empty_cluster, 0, CLUSTER_SIZE * sizeof(uint8_t));
   // fseek(fs->fat_part,old_block,SEEK_SET);
-  while (*block != 0xffff || i < num_required_blocks) {,
+  while (*block != 0xffff || i < num_required_blocks) {
     if (i < num_required_blocks) {
       // remove blocks that are not going to be used
       if (*block == 0xffff) {
