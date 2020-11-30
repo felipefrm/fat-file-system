@@ -4,11 +4,14 @@
 #include "utils.h"
 
 #define BUFFER_SIZE 256
+#define COMMAND_SIZE 16
+#define MAX_NUM_ARGS 2
+#define ARG_SIZE (BUFFER_SIZE-COMMAND_SIZE)/MAX_NUM_ARGS
 #define STR_EQUAL(a, b) strcmp(a, b) == 0
 
 int main() {
     char buffer[BUFFER_SIZE];
-    char command[16], arg1[120], arg2[120];
+    char command[COMMAND_SIZE], arg1[ARG_SIZE], arg2[ARG_SIZE];
     fat_fs* fs=NULL;
     int start = 0;
 
