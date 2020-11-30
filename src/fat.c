@@ -195,7 +195,7 @@ void fat_fs_ls(fat_fs *fs, char *dir) {
 
   char* last_name = fat_fs_find_base_dir(fs, dir, current_dir, &dir_block, 0); 
  
-  printf("%s %d\n", last_name, dir_block);
+  //printf("%s %d\n", last_name, dir_block);
 
   if (dir_block == -1 && last_name == NULL) {
     fprintf(stderr, "Não foi possível localizar o diretório especificado.\n");
@@ -381,7 +381,7 @@ void fat_fs_write(fat_fs *fs, char *string, char *name) {
     fprintf(stderr, "Não foi possível escrever no arquivo especificado.\n");
     return;
   }
-  uint16_t *block = &current_dir[i].first_block, *next_block = &fs->fat[*block];
+  uint16_t *block = &current_dir[i].first_block, *next_block = NULL;
   i = 0;
   int fat_next_block = 10;
   uint8_t empty_cluster[CLUSTER_SIZE];
@@ -402,20 +402,16 @@ void fat_fs_write(fat_fs *fs, char *string, char *name) {
              fs->fat_part);
       num_characters -= MIN(num_characters,CLUSTER_SIZE);
     }
-    
+    next_block = &(fs->fat[*block]);
     if (i >= num_required_blocks) {
       fseek(fs->fat_part, *block * CLUSTER_SIZE, SEEK_SET);
       fwrite(empty_cluster, sizeof(uint8_t), CLUSTER_SIZE, fs->fat_part);
       *block = 0x0000;
     }
     block = next_block;
-    next_block = &(fs->fat[*block]);
     if(num_characters == 0)
       *block = 0xffff;
     i++;
-  }
-  if (i > num_required_blocks){
-    *block = 0xffff;
   }
   if (num_required_blocks == 0) {
     current_dir[i].first_block = 0xffff;
