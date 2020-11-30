@@ -59,7 +59,7 @@ void splitUserInput(const char *s, char *command, char *arg1, char *arg2) {
 
 }
 
-char* removeQuotes(const char *string) {
+char* removeQuotes(char *string) {
     char *p = string;
     p++;
     p[strlen(p)-1] = 0;
