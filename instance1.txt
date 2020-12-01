@@ -8,10 +8,9 @@ ls /home
 create home/documents/code.py
 ls home/documents/
 write "print('Hello World')" home/documents/code.py
-append "print('1... 2... 3... Testando') home/documents/code.py
+append "print('Testando')" home/documents/code.py
 read home/documents/code.py
 unlink home/documents/code.py
-ls home/documents/code.py
-write "{tabs: 2}" home/configs.cfg
-read home/configs.cfg
+read home/documents/code.py
+ls home/documents
 quit

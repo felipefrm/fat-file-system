@@ -1,5 +1,6 @@
 ls /
 load
+ls /
 unlink home
 write text_sem_aspas home/configs.cfg
 append "texto acrescentado" home/arquivo_inexistente.txt

@@ -8,6 +8,15 @@
 #define MIN(a,b) (((a)<(b))?(a):(b))
 #define MAX(a,b) (((a)>(b))?(a):(b))
 
+int get_empty_entry(dir_entry_t* current_dir) {
+  int empty_entry;
+  for (empty_entry = 0; empty_entry < ENTRY_SIZE; empty_entry++)
+  if (current_dir[empty_entry].first_block == 0)
+    break;
+  if (empty_entry == ENTRY_SIZE) return -1;
+  return empty_entry;
+}
+
 void fat_fs_free(fat_fs *fat_fs) {
   if (fat_fs != NULL) {
     if (fat_fs->fat_part != NULL) {
@@ -137,14 +146,13 @@ void fat_fs_mkdir(fat_fs *fs, char *dir) {
     }
   }
 
-  for (empty_entry = 0; empty_entry < ENTRY_SIZE; empty_entry++)
-    if (current_dir[empty_entry].first_block == 0)
-      break;
+  empty_entry = get_empty_entry(current_dir);
 
-  if (empty_entry == ENTRY_SIZE) {
+  if (empty_entry == -1) {
     fprintf(stderr, "Não foi possível criar o diretorio especificado.\n");
     return;
   }
+
   strcpy((char *)current_dir[empty_entry].filename, last_name);
   current_dir[empty_entry].attributes = 1;
 
@@ -229,13 +237,9 @@ void fat_fs_create(fat_fs *fs, char *name) {
     }
   }
 
-  for (empty_entry = 0; empty_entry < ENTRY_SIZE; empty_entry++) {
-    if (current_dir[empty_entry].first_block == 0) {
-      break;
-    }
-  }
+  empty_entry = get_empty_entry(current_dir);
 
-  if (empty_entry == ENTRY_SIZE) {
+  if (empty_entry == -1) {
     fprintf(stderr, "Não foi possível criar o arquivo especificado.\n");
     return;
   }
