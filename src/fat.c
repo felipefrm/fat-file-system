@@ -393,7 +393,8 @@ void fat_fs_write(fat_fs *fs, char *string, char *name) {
     }
 
     block = next_block;
-    *block = 0xffff;
+    if(block == 0x0000)
+      *block = 0xffff;
     i++;
   }
   if (num_required_blocks == 0) {
