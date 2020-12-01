@@ -33,7 +33,7 @@ fat_fs *fat_fs_init() {
 
   fs->fat[BOOT_BLOCK_CLUSTER] = 0xfffd;
   for (int i = FIRST_FAT_CLUSTER; i < ROOT_DIR_CLUSTER; i++) {
-    fs->fat[ROOT_DIR_CLUSTER] = 0xfffe;
+    fs->fat[i] = 0xfffe;
   }
 
   fs->fat[ROOT_DIR_CLUSTER] = 0xffff;
