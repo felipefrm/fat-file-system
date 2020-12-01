@@ -6,6 +6,7 @@
 #define RESET "\e[0m" 
 
 void split_user_input(const char *s, char *command, char *arg1, char *arg2);
+void reset_args(char* command, char* arg1, char* arg2);
 void remove_quotes(char *string);
 void print_pipe(int j, int count);
 
