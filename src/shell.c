@@ -3,7 +3,7 @@
 #include "fat.h"
 #include "utils.h"
 
-#define BUFFER_SIZE 256
+#define BUFFER_SIZE 2500
 #define COMMAND_SIZE 16
 #define MAX_NUM_ARGS 2
 #define ARG_SIZE (BUFFER_SIZE-COMMAND_SIZE)/MAX_NUM_ARGS
@@ -84,7 +84,6 @@ int main() {
                     fprintf(stderr, "A string deve estar entre aspas.\n");   
                 else {
                     remove_quotes(arg1);
-                    printf("%s\n",arg1);
                     fat_fs_write(fs,arg1,arg2);
                 }
             }
@@ -97,7 +96,7 @@ int main() {
                 else {
                     //snprintf(arg1, sizeof(arg1), "%s", removeQuotes(arg1));
                     remove_quotes(arg1);
-                    //fat_fs_append(fs,arg1,arg2);
+                    fat_fs_append(fs,arg1,arg2);
                 }
             }
 
