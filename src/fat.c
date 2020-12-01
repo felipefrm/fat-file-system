@@ -387,8 +387,8 @@ void fat_fs_write(fat_fs *fs, char *string, char *name) {
     }
     next_block = &(fs->fat[*block]);
     if (i >= num_required_blocks) {
-      fseek(fs->fat_part, *block * CLUSTER_SIZE, SEEK_SET);
-      fwrite(empty_cluster, sizeof(uint8_t), CLUSTER_SIZE, fs->fat_part);
+      // fseek(fs->fat_part, *block * CLUSTER_SIZE, SEEK_SET);
+      // fwrite(empty_cluster, sizeof(uint8_t), CLUSTER_SIZE, fs->fat_part);
       *block = 0x0000;
     }
 
