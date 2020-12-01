@@ -121,7 +121,7 @@ char *fat_fs_find_base_dir(fat_fs *fs, char *dir, dir_entry_t *current_dir,
 
 void fat_fs_mkdir(fat_fs *fs, char *dir) {
 
-  int n = strlen(dir), i, j, empty_entry;
+  int j, empty_entry;
   dir_entry_t current_dir[ENTRY_SIZE];
   // memcpy(current_dir, fs->root_dir, sizeof(current_dir));
   int dir_block;
@@ -184,7 +184,7 @@ void fat_fs_mkdir(fat_fs *fs, char *dir) {
 
 void fat_fs_ls(fat_fs *fs, char *dir) {
 
-  int n = strlen(dir), i, dir_block;
+  int i, dir_block;
   dir_entry_t current_dir[ENTRY_SIZE];
   // memcpy(current_dir, fs->root_dir, sizeof(current_dir));
 
@@ -221,7 +221,7 @@ void fat_fs_ls(fat_fs *fs, char *dir) {
 
 void fat_fs_create(fat_fs *fs, char *name) {
 
-  int n = strlen(name), i, j, empty_entry;
+  int j, empty_entry;
   dir_entry_t current_dir[ENTRY_SIZE];
   // memcpy(current_dir, fs->root_dir, sizeof(current_dir));
   int dir_block;
@@ -282,7 +282,7 @@ void fat_fs_create(fat_fs *fs, char *name) {
 
 void fat_fs_unlink(fat_fs *fs, char *name) {
 
-  int n = strlen(name), i, j, empty_entry;
+  int i, j;
   dir_entry_t current_dir[ENTRY_SIZE];
   int dir_block;
   char *last_name;
@@ -365,7 +365,7 @@ void fat_fs_unlink(fat_fs *fs, char *name) {
 }
 
 void fat_fs_write(fat_fs *fs, char *string, char *name) {
-  int i, j, empty_entry, num_characters = strlen(string) + 1;
+  int i, num_characters = strlen(string) + 1;
   int num_required_blocks = ceil((double)num_characters * sizeof(char) / CLUSTER_SIZE);
   //int num_characters_to_write = num_characters;
   dir_entry_t current_dir[ENTRY_SIZE];
@@ -434,7 +434,7 @@ void fat_fs_write(fat_fs *fs, char *string, char *name) {
 }
 
 void fat_fs_read(fat_fs *fs, char *name) {
-  int i, j, empty_entry;
+  int i;
   dir_entry_t current_dir[ENTRY_SIZE];
   int dir_block;
   char *last_name;
