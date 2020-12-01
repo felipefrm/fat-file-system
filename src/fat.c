@@ -31,7 +31,7 @@ bool fat_fs_check_exists_path(dir_entry_t* current_dir,char* last_name){
 int fat_fs_check_exists(dir_entry_t* dir,char *last_name, bool cmp(dir_entry_t*, char*)){
   int i;
   for (i = 0; i < ENTRY_SIZE; i++) {
-    if (cmp(dir,last_name)) {
+    if (cmp(&dir[i],last_name)) {
       return i;
     }
   }
