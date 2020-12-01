@@ -8,6 +8,10 @@
 #define FAT_ENTRIES 4096
 #define DATA_CLUSTERS_SIZE 4086
 #define ENTRY_SIZE 32
+#define BOOT_BLOCK_CLUSTER 0
+#define FIRST_FAT_CLUSTER 1
+#define ROOT_DIR_CLUSTER 9
+#define FIRST_DATA_CLUSTER 10
 
 /* entrada de diretorio, 32 bytes cada */
 typedef struct {

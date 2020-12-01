@@ -1,0 +1,17 @@
+init
+mkdir home
+ls /
+create home/configs.cfg
+mkdir home/documents/
+mkdir home/images/
+ls /home
+create home/documents/code.py
+ls home/documents/
+write "print('Hello World')" home/documents/code.py
+append "print('1... 2... 3... Testando') home/documents/code.py
+read home/documents/code.py
+unlink home/documents/code.py
+ls home/documents/code.py
+write "{tabs: 2}" home/configs.cfg
+read home/configs.cfg
+quit

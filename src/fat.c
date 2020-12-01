@@ -4,17 +4,9 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+
 #define MIN(a,b) (((a)<(b))?(a):(b))
 #define MAX(a,b) (((a)>(b))?(a):(b))
-/* 8 clusters da tabela FAT, 4096 entradas de 16 bits = 8192 bytes*/
-// static uint16_t fat[FAT_ENTRIES];
-// static dir_entry_t root_dir[ENTRY_SIZE];
-union {
-  dir_entry_t dir[CLUSTER_SIZE / sizeof(dir_entry_t)];
-  uint8_t data[CLUSTER_SIZE];
-} data_cluster;
-/* diretorios (incluindo ROOT), 32 entradas de diretorio com 32 bytes cada =
- * 1024 bytes ou bloco de dados de 1024 bytes*/
 
 void fat_fs_free(fat_fs *fat_fs) {
   if (fat_fs != NULL) {
@@ -24,6 +16,7 @@ void fat_fs_free(fat_fs *fat_fs) {
     free(fat_fs);
   }
 }
+
 fat_fs *fat_fs_init() {
   fat_fs *fs = malloc(sizeof(fat_fs));
   if (fs == NULL) {
@@ -38,13 +31,13 @@ fat_fs *fat_fs_init() {
     return NULL;
   }
 
-  fs->fat[0] = 0xfffd;
-  for (int i = 1; i < 9; i++) {
-    fs->fat[i] = 0xfffe;
+  fs->fat[BOOT_BLOCK_CLUSTER] = 0xfffd;
+  for (int i = FIRST_FAT_CLUSTER; i < ROOT_DIR_CLUSTER; i++) {
+    fs->fat[ROOT_DIR_CLUSTER] = 0xfffe;
   }
 
-  fs->fat[9] = 0xffff;
-  for (int i = 10; i < FAT_ENTRIES; i++) {
+  fs->fat[ROOT_DIR_CLUSTER] = 0xffff;
+  for (int i = FIRST_DATA_CLUSTER; i < FAT_ENTRIES; i++) {
     fs->fat[i] = 0x0000;
   }
 
@@ -76,8 +69,8 @@ fat_fs *fat_fs_load() {
     return 0;
   }
 
-  uint8_t dummy[1024];
-  fread(dummy, 1, 1024, fs->fat_part);
+  uint8_t dummy[CLUSTER_SIZE];
+  fread(dummy, 1, CLUSTER_SIZE, fs->fat_part);
 
   fread(fs->fat, sizeof(uint16_t), FAT_ENTRIES, fs->fat_part);
 
@@ -88,7 +81,7 @@ fat_fs *fat_fs_load() {
 char *fat_fs_find_base_dir(fat_fs *fs, char *dir, dir_entry_t *current_dir,
                            int *dir_block, int tokens_offset) {
   int n = strlen(dir), i, j, num_tokens = 0;
-  *dir_block = 9;
+  *dir_block = ROOT_DIR_CLUSTER;
   char *dir_copy = malloc((n + 1) * sizeof(char));
   // dir_entry_t current_dir[ENTRY_SIZE];
 
@@ -111,7 +104,7 @@ char *fat_fs_find_base_dir(fat_fs *fs, char *dir, dir_entry_t *current_dir,
       }
     }
 
-    if (j == 32) {
+    if (j == ENTRY_SIZE) {
       // printf("entrei\n");
       *dir_block = -1;
       return NULL;
@@ -128,7 +121,7 @@ char *fat_fs_find_base_dir(fat_fs *fs, char *dir, dir_entry_t *current_dir,
 
 void fat_fs_mkdir(fat_fs *fs, char *dir) {
 
-  int n = strlen(dir), i, j, empty_entry;
+  int j, empty_entry;
   dir_entry_t current_dir[ENTRY_SIZE];
   // memcpy(current_dir, fs->root_dir, sizeof(current_dir));
   int dir_block;
@@ -153,7 +146,7 @@ void fat_fs_mkdir(fat_fs *fs, char *dir) {
     if (current_dir[empty_entry].first_block == 0)
       break;
 
-  if (empty_entry == 32) {
+  if (empty_entry == ENTRY_SIZE) {
     fprintf(stderr, "Não foi possível criar o diretorio especificado.\n");
     return;
   }
@@ -163,7 +156,7 @@ void fat_fs_mkdir(fat_fs *fs, char *dir) {
   current_dir[empty_entry].attributes = 1;
 
   int first_block;
-  for (first_block = 10; first_block < 4096; first_block++) {
+  for (first_block = FIRST_DATA_CLUSTER; first_block < FAT_ENTRIES; first_block++) {
     if (fs->fat[first_block] == 0x0000)
       break;
   }
@@ -181,7 +174,7 @@ void fat_fs_mkdir(fat_fs *fs, char *dir) {
 
   fseek(fs->fat_part, dir_block * CLUSTER_SIZE, SEEK_SET);
   fwrite(current_dir, sizeof(dir_entry_t), ENTRY_SIZE, fs->fat_part);
-  if (dir_block == 9) {
+  if (dir_block == ROOT_DIR_CLUSTER) {
     memcpy(fs->root_dir, current_dir, sizeof(fs->root_dir));
   }
 
@@ -191,7 +184,7 @@ void fat_fs_mkdir(fat_fs *fs, char *dir) {
 
 void fat_fs_ls(fat_fs *fs, char *dir) {
 
-  int n = strlen(dir), i, dir_block;
+  int i, dir_block;
   dir_entry_t current_dir[ENTRY_SIZE];
   // memcpy(current_dir, fs->root_dir, sizeof(current_dir));
 
@@ -228,7 +221,7 @@ void fat_fs_ls(fat_fs *fs, char *dir) {
 
 void fat_fs_create(fat_fs *fs, char *name) {
 
-  int n = strlen(name), i, j, empty_entry;
+  int j, empty_entry;
   dir_entry_t current_dir[ENTRY_SIZE];
   // memcpy(current_dir, fs->root_dir, sizeof(current_dir));
   int dir_block;
@@ -255,7 +248,7 @@ void fat_fs_create(fat_fs *fs, char *name) {
     }
   }
 
-  if (empty_entry == 32) {
+  if (empty_entry == ENTRY_SIZE) {
     fprintf(stderr, "Não foi possível criar o arquivo especificado.\n");
     return;
   }
@@ -282,14 +275,14 @@ void fat_fs_create(fat_fs *fs, char *name) {
 
   fseek(fs->fat_part, dir_block * CLUSTER_SIZE, SEEK_SET);
   fwrite(current_dir, sizeof(dir_entry_t), ENTRY_SIZE, fs->fat_part);
-  if (dir_block == 9) {
+  if (dir_block == ROOT_DIR_CLUSTER) {
     memcpy(fs->root_dir, current_dir, sizeof(fs->root_dir));
   }
 }
 
 void fat_fs_unlink(fat_fs *fs, char *name) {
 
-  int n = strlen(name), i, j, empty_entry;
+  int i, j;
   dir_entry_t current_dir[ENTRY_SIZE];
   int dir_block;
   char *last_name;
@@ -305,7 +298,7 @@ void fat_fs_unlink(fat_fs *fs, char *name) {
     }
   }
 
-  if (i == 32) {
+  if (i == ENTRY_SIZE) {
     fprintf(stderr, "Não foi possível criar o arquivo especificado.\n");
     return;
   }
@@ -333,7 +326,7 @@ void fat_fs_unlink(fat_fs *fs, char *name) {
   
     fseek(fs->fat_part, dir_block * CLUSTER_SIZE, SEEK_SET);
     fwrite(current_dir, sizeof(dir_entry_t), ENTRY_SIZE, fs->fat_part);
-    if (dir_block == 9) {
+    if (dir_block == ROOT_DIR_CLUSTER) {
       memcpy(fs->root_dir, current_dir, sizeof(fs->root_dir));
     }
     
@@ -358,7 +351,7 @@ void fat_fs_unlink(fat_fs *fs, char *name) {
       fseek(fs->fat_part, dir_block * CLUSTER_SIZE, SEEK_SET);
       fwrite(current_dir, sizeof(dir_entry_t), ENTRY_SIZE, fs->fat_part);
       
-      if (dir_block == 9) {
+      if (dir_block == ROOT_DIR_CLUSTER) {
         memcpy(fs->root_dir, current_dir, sizeof(fs->root_dir));
       }
 
@@ -372,7 +365,7 @@ void fat_fs_unlink(fat_fs *fs, char *name) {
 }
 
 void fat_fs_write(fat_fs *fs, char *string, char *name) {
-  int i, j, empty_entry, num_characters = strlen(string) + 1;
+  int i, num_characters = strlen(string) + 1;
   int num_required_blocks = ceil((double)num_characters * sizeof(char) / CLUSTER_SIZE);
   //int num_characters_to_write = num_characters;
   dir_entry_t current_dir[ENTRY_SIZE];
@@ -390,13 +383,13 @@ void fat_fs_write(fat_fs *fs, char *string, char *name) {
     }
   }
 
-  if (i == 32) {
+  if (i == ENTRY_SIZE) {
     fprintf(stderr, "Não foi possível escrever no arquivo especificado.\n");
     return;
   }
   uint16_t *block = &current_dir[i].first_block, *next_block = NULL;
   i = 0;
-  int fat_next_block = 10;
+  int fat_next_block = FIRST_DATA_CLUSTER;
   uint8_t empty_cluster[CLUSTER_SIZE];
   memset(empty_cluster, 0, CLUSTER_SIZE * sizeof(uint8_t));
   // fseek(fs->fat_part,old_block,SEEK_SET);
@@ -404,7 +397,7 @@ void fat_fs_write(fat_fs *fs, char *string, char *name) {
     if (i < num_required_blocks) {
       // remove blocks that are not going to be used
       if (*block == 0xffff) {
-        for (; fat_next_block < 4096; fat_next_block++) {
+        for (; fat_next_block < FAT_ENTRIES; fat_next_block++) {
           if (fs->fat[fat_next_block] == 0x0000)
             break;
         }
@@ -431,7 +424,7 @@ void fat_fs_write(fat_fs *fs, char *string, char *name) {
   }
   fseek(fs->fat_part, dir_block * CLUSTER_SIZE, SEEK_SET);
   fwrite(current_dir, sizeof(dir_entry_t), ENTRY_SIZE, fs->fat_part);    
-  if (dir_block == 9) {
+  if (dir_block == ROOT_DIR_CLUSTER) {
       memcpy(fs->root_dir, current_dir, sizeof(fs->root_dir));
   }
   if (i >= num_required_blocks) {
@@ -441,7 +434,7 @@ void fat_fs_write(fat_fs *fs, char *string, char *name) {
 }
 
 void fat_fs_read(fat_fs *fs, char *name) {
-  int i, j, empty_entry;
+  int i;
   dir_entry_t current_dir[ENTRY_SIZE];
   int dir_block;
   char *last_name;
@@ -457,7 +450,7 @@ void fat_fs_read(fat_fs *fs, char *name) {
       break;
     }
   }
-   if (i == 32) {
+   if (i == ENTRY_SIZE) {
     fprintf(stderr, "Não foi possível ler o arquivo especificado.\n");
     return;
   }
@@ -501,6 +494,8 @@ void fat_fs_append(fat_fs *fs, char *string, char *name) {
   }
   
   uint16_t *block = &(current_dir[i].first_block), *next_block = &(fs->fat[*block]);
+  int fat_next_block = FIRST_DATA_CLUSTER;
+>>>>>>> 3fd0bf871036f67dd6fdeca90499faf48245a385
   uint8_t empty_cluster[CLUSTER_SIZE];
   char block_content[CLUSTER_SIZE];
   memset(empty_cluster, 0, CLUSTER_SIZE * sizeof(uint8_t));
