@@ -423,7 +423,7 @@ void fat_fs_write(fat_fs *fs, char *string, char *name) {
   if (num_required_blocks == 0) {
     current_dir[i].first_block = 0xffff;
   }
-  current_dir[i].size = num_required_blocks
+  current_dir[i].size = num_required_blocks;
   fseek(fs->fat_part, dir_block * CLUSTER_SIZE, SEEK_SET);
   fwrite(current_dir, sizeof(dir_entry_t), ENTRY_SIZE, fs->fat_part);    
   if (dir_block == ROOT_DIR_CLUSTER) {
@@ -515,7 +515,7 @@ void fat_fs_append(fat_fs *fs, char *string, char *name) {
   }
   
   while (num_characters_to_write!=0) {
-    for (; fat_next_block < 4096; fat_next_block++) {
+    for (; fat_next_block < FAT_ENTRIES; fat_next_block++) {
       if (fs->fat[fat_next_block] == 0x0000)
         break;
     }
