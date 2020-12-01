@@ -503,35 +503,32 @@ void fat_fs_append(fat_fs *fs, char *string, char *name) {
     return;
   }
   
-  uint16_t block = &current_dir[i].first_block, *next_block = &fs->fat[block];
-  i = 0;
+  uint16_t block = current_dir[i].first_block, next_block = fs->fat[block];
   int fat_next_block = 10;
   uint8_t empty_cluster[CLUSTER_SIZE];
   char block_content[CLUSTER_SIZE];
   memset(empty_cluster, 0, CLUSTER_SIZE * sizeof(uint8_t));
-  // fseek(fs->fat_part,old_block,SEEK_SET);
-  while (block != 0xffff) {
+
+  while (next_block != 0xffff) {
     fseek(fs->fat_part, block*CLUSTER_SIZE, SEEK_SET);
-    fread(block_content, sizeof(char), CLUSTER_SIZE, fs->fat_part);
     block = next_block;
-    next_block = &(fs->fat[block]);
-    if(num_characters == 0 ||i > num_required_blocks)
-      block = 0xffff;
-    if(block = 0xffff)
-       break;
-    i++;
+    next_block = fs->fat[block];
   }
-  int end = strlen(&fs->fat[i]);
+  
+  fread(block_content, sizeof(char), CLUSTER_SIZE, fs->fat_part);
+  int end = strlen(block_content);
 
   fseek(fs->fat_part, dir_block * CLUSTER_SIZE + end, SEEK_SET);
-  fwrite(current_dir, sizeof(dir_entry_t), ENTRY_SIZE, fs->fat_part);
+  fread(current_dir, sizeof(dir_entry_t), ENTRY_SIZE, fs->fat_part);
+  
+  
   int letters = 0;  
   for (j = 0; j < CLUSTER_SIZE; j ++){
 		if (letters >= strlen(newstring)){
-            break;
-            }
-			if (&fs->fat[j] == 0x0000){
-				fs->fat[j] = newstring[letters];
+        break;
+    }
+		if (fs->fat[j] == 0x0000){
+			fs->fat[j] = newstring[letters];
 		letters++;
 	}
     
