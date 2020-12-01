@@ -260,6 +260,7 @@ void fat_fs_create(fat_fs *fs, char *name) {
 
   empty_entry = fat_fs_get_empty_entry(current_dir);
 
+
   if (empty_entry == ENTRY_SIZE) {
     fprintf(stderr, "Não foi possível criar o arquivo especificado.\n");
     return;
@@ -518,6 +519,10 @@ void fat_fs_append(fat_fs *fs, char *string, char *name) {
     for (; fat_next_block < FAT_ENTRIES; fat_next_block++) {
       if (fs->fat[fat_next_block] == 0x0000)
         break;
+    }
+    if(fat_next_block == FAT_ENTRIES){
+      fprintf(stderr,"Não há mais espaço no disco.\n");
+      exit(1);
     }
     *block = fat_next_block;
     next_block = &(fs->fat[*block]);
