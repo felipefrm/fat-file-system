@@ -42,7 +42,7 @@ fat_fs *fat_fs_init() {
   }
 
   uint16_t boot = 0xbbbb;
-  for (int i = 0; i < CLUSTER_SIZE/sizeof(uint16_t); i++)
+  for (int i = 0; i < (int)(CLUSTER_SIZE/sizeof(uint16_t)); i++)
     fwrite(&boot, sizeof(boot), 1, fs->fat_part);
 
   fwrite(fs->fat, sizeof(uint16_t), FAT_ENTRIES, fs->fat_part);
