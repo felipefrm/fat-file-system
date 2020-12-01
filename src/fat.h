@@ -29,7 +29,6 @@ typedef struct {
 } fat_fs;
 
 
-// FILE* openFAT();
 fat_fs* fat_fs_init();
 fat_fs* fat_fs_load();
 void fat_fs_free(fat_fs* fs);
@@ -37,7 +36,6 @@ void fat_fs_mkdir(fat_fs* fs, char *dir);
 void fat_fs_ls(fat_fs* fs, char* dir);
 void fat_fs_create(fat_fs* fs,char* name);
 void fat_fs_unlink(fat_fs *fs, char *name);
-
 void fat_fs_write(fat_fs *fs, char *string, char *name);
 void fat_fs_read(fat_fs *fs, char *name);
 void fat_fs_append(fat_fs *fs, char *string, char *name);
