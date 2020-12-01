@@ -507,6 +507,7 @@ void fat_fs_append(fat_fs *fs, char *string, char *name) {
   i = 0;
   int fat_next_block = 10;
   uint8_t empty_cluster[CLUSTER_SIZE];
+  char block_content[CLUSTER_SIZE];
   memset(empty_cluster, 0, CLUSTER_SIZE * sizeof(uint8_t));
   // fseek(fs->fat_part,old_block,SEEK_SET);
   while (*block != 0xffff) {
@@ -520,16 +521,17 @@ void fat_fs_append(fat_fs *fs, char *string, char *name) {
        break;
     i++;
   }
-  int end = strlen(&fs->fat[i])
+  int end = strlen(&fs->fat[i]);
 
   fseek(fs->fat_part, dir_block * CLUSTER_SIZE + end, SEEK_SET);
-  fwrite(current_dir, sizeof(dir_entry_t), ENTRY_SIZE, fs->fat_part);  
+  fwrite(current_dir, sizeof(dir_entry_t), ENTRY_SIZE, fs->fat_part);
+  int letters = 0;  
   for (j = 0; j < CLUSTER_SIZE; j ++){
-		if (letters >= len(newstring)){
+		if (letters >= strlen(newstring)){
             break;
             }
 			if (&fs->fat[j] == 0x0000){
-				&fs->fat[j] = newstring[letters];
+				fs->fat[j] = newstring[letters];
 		letters++;
 	}
     
@@ -539,5 +541,6 @@ void fat_fs_append(fat_fs *fs, char *string, char *name) {
   if (i >= num_required_blocks) {
     fseek(fs->fat_part, CLUSTER_SIZE, SEEK_SET);
     fwrite(fs->fat, sizeof(uint16_t), FAT_ENTRIES, fs->fat_part);
+    }
   }
 }
