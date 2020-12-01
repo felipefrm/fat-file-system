@@ -1,0 +1,11 @@
+ls /
+load
+unlink home
+write text_sem_aspas home/configs.cfg
+append "texto acrescentado" home/arquivo_inexistente.txt
+ls user
+mkdir diretorio_inexistente/downloads
+create diretorio_inexistente/file.txt
+read diretorio_inexistente/file.txt
+quit
+
