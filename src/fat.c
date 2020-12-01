@@ -407,6 +407,7 @@ void fat_fs_write(fat_fs *fs, char *string, char *name) {
       num_write = MIN(num_characters,CLUSTER_SIZE);
       fwrite(string, sizeof(char), num_write,
              fs->fat_part);
+      string += num_write;
       num_characters -= num_write;
     }
     next_block = &(fs->fat[*block]);
@@ -417,8 +418,7 @@ void fat_fs_write(fat_fs *fs, char *string, char *name) {
     }
 
     block = next_block;
-    if(num_characters == 0)
-      *block = 0xffff;
+    *block = 0xffff;
     i++;
   }
   if (num_required_blocks == 0) {
@@ -540,7 +540,7 @@ void fat_fs_append(fat_fs *fs, char *string, char *name) {
   
   fseek(fs->fat_part, dir_block * CLUSTER_SIZE, SEEK_SET);
   fwrite(current_dir, sizeof(dir_entry_t), ENTRY_SIZE, fs->fat_part);
-  if (dir_block == 9) {
+  if (dir_block == ROOT_DIR_CLUSTER) {
     memcpy(fs->root_dir, current_dir, sizeof(fs->root_dir));
   }
 }
