@@ -503,21 +503,21 @@ void fat_fs_append(fat_fs *fs, char *string, char *name) {
     return;
   }
   
-  uint16_t *block = &current_dir[i].first_block, *next_block = &fs->fat[*block];
+  uint16_t block = &current_dir[i].first_block, *next_block = &fs->fat[block];
   i = 0;
   int fat_next_block = 10;
   uint8_t empty_cluster[CLUSTER_SIZE];
   char block_content[CLUSTER_SIZE];
   memset(empty_cluster, 0, CLUSTER_SIZE * sizeof(uint8_t));
   // fseek(fs->fat_part,old_block,SEEK_SET);
-  while (*block != 0xffff) {
+  while (block != 0xffff) {
     fseek(fs->fat_part, block*CLUSTER_SIZE, SEEK_SET);
     fread(block_content, sizeof(char), CLUSTER_SIZE, fs->fat_part);
     block = next_block;
-    next_block = &(fs->fat[*block]);
+    next_block = &(fs->fat[block]);
     if(num_characters == 0 ||i > num_required_blocks)
-      *block = 0xffff;
-    if(*block = 0xffff)
+      block = 0xffff;
+    if(block = 0xffff)
        break;
     i++;
   }
