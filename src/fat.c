@@ -365,7 +365,7 @@ void fat_fs_unlink(fat_fs *fs, char *name) {
 }
 
 void fat_fs_write(fat_fs *fs, char *string, char *name) {
-  int i, num_characters = strlen(string) + 1;
+  int i, num_characters = strlen(string) + 1, num_write;
   int num_required_blocks = ceil((double)num_characters * sizeof(char) / CLUSTER_SIZE);
   //int num_characters_to_write = num_characters;
   dir_entry_t current_dir[ENTRY_SIZE];
@@ -404,9 +404,10 @@ void fat_fs_write(fat_fs *fs, char *string, char *name) {
         *block = fat_next_block;
       }
       fseek(fs->fat_part, *block * CLUSTER_SIZE, SEEK_SET);
-      fwrite(string, sizeof(char), num_characters,
+      num_write = MIN(num_characters,CLUSTER_SIZE);
+      fwrite(string, sizeof(char), num_write,
              fs->fat_part);
-      num_characters -= MIN(num_characters,CLUSTER_SIZE);
+      num_characters -= num_write;
     }
     next_block = &(fs->fat[*block]);
     if (i >= num_required_blocks) {
@@ -414,6 +415,7 @@ void fat_fs_write(fat_fs *fs, char *string, char *name) {
       fwrite(empty_cluster, sizeof(uint8_t), CLUSTER_SIZE, fs->fat_part);
       *block = 0x0000;
     }
+
     block = next_block;
     if(num_characters == 0)
       *block = 0xffff;
