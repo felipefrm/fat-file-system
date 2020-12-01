@@ -383,15 +383,18 @@ void fat_fs_write(fat_fs *fs, char *string, char *name) {
       num_characters -= num_write;
     }
     next_block = &(fs->fat[*block]);
-    if (i >= num_required_blocks) {
+    if (i == num_required_blocks) {
       // fseek(fs->fat_part, *block * CLUSTER_SIZE, SEEK_SET);
       // fwrite(empty_cluster, sizeof(uint8_t), CLUSTER_SIZE, fs->fat_part);
+      *block = 0xffff;
+    }else if(i > num_required_blocks){
       *block = 0x0000;
     }
 
     block = next_block;
-    if(block == 0x0000)
+    if(*block == 0x0000)
       *block = 0xffff;
+
     i++;
   }
   if (num_required_blocks == 0) {
