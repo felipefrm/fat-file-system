@@ -279,24 +279,21 @@ void fat_fs_unlink(fat_fs *fs, char *name) {
   }
   if (current_dir[i].attributes == 0) {
     // file
-    // dir_entry_t file;
-    // fseek(fs->fat_part, current_dir[i].first_block * CLUSTER_SIZE, SEEK_SET);
-    // fread(candidate_dir, sizeof(dir_entry_t), ENTRY_SIZE, fs->fat_part);
+
     uint16_t *block = &(current_dir[i].first_block),
              *next_block = &(fs->fat[*block]);
-    uint8_t empty_cluster[CLUSTER_SIZE];
-    memset(empty_cluster, 0, CLUSTER_SIZE * sizeof(uint8_t));
+    // uint8_t empty_cluster[CLUSTER_SIZE];
+    // memset(empty_cluster, 0, CLUSTER_SIZE * sizeof(uint8_t));
     while (*block != 0xffff) {
-      fseek(fs->fat_part, *block * CLUSTER_SIZE, SEEK_SET);
-      fwrite(empty_cluster, sizeof(uint8_t), CLUSTER_SIZE, fs->fat_part);
+      // fseek(fs->fat_part, *block * CLUSTER_SIZE, SEEK_SET);
+      // fwrite(empty_cluster, sizeof(uint8_t), CLUSTER_SIZE, fs->fat_part);
       *block = 0x0000;
       block = next_block;
       next_block = &(fs->fat[*block]);
     }
     fseek(fs->fat_part, CLUSTER_SIZE, SEEK_SET);
     fwrite(fs->fat, sizeof(uint16_t), FAT_ENTRIES, fs->fat_part);
-    /* fseek(fs->fat_part, current_dir[i].first_block * CLUSTER_SIZE, SEEK_SET); */
-    /* fread(candidate_dir, sizeof(dir_entry_t), ENTRY_SIZE, fs->fat_part); */
+
     memset(&current_dir[i], 0, sizeof(dir_entry_t));
   
     fseek(fs->fat_part, dir_block * CLUSTER_SIZE, SEEK_SET);
