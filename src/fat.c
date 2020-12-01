@@ -484,8 +484,8 @@ void fat_fs_append(fat_fs *fs, char *string, char *name) {
   char *last_name;
   last_name = fat_fs_find_base_dir(fs, name, current_dir, &dir_block, 1);
   char* newstring = malloc(num_characters);
-  strcpy(newstring,string);
-  strcat(newstring,"\n");
+  newstring = "\n";
+  strcat(newstring,string);
 
   if (dir_block == -1 && last_name == NULL) {
     fprintf(stderr, "Não foi possível escrever no arquivo especificado.\n");
@@ -514,23 +514,23 @@ void fat_fs_append(fat_fs *fs, char *string, char *name) {
     block = next_block;
     next_block = fs->fat[block];
   }
-  
+  fseek(fs->fat_part, block*CLUSTER_SIZE, SEEK_SET);
   fread(block_content, sizeof(char), CLUSTER_SIZE, fs->fat_part);
   int end = strlen(block_content);
 
   fseek(fs->fat_part, dir_block * CLUSTER_SIZE + end, SEEK_SET);
   fread(current_dir, sizeof(dir_entry_t), ENTRY_SIZE, fs->fat_part);
+  fwrite(newstring, sizeof(char),strlen(newstring),fs->fat_part);
   
-  
-  int letters = 0;  
-  for (j = 0; j < CLUSTER_SIZE; j ++){
-		if (letters >= strlen(newstring)){
-        break;
-    }
-		if (fs->fat[j] == 0x0000){
-			fs->fat[j] = newstring[letters];
-		letters++;
-	}
+  // int letters = 0;  
+  // for (j = 0; j < CLUSTER_SIZE; j ++){
+	// 	if (letters >= strlen(newstring)){
+  //       break;
+  //   }
+	// 	if (fs->fat[j] == 0x0000){
+	// 		fs->fat[j] = newstring[letters];
+	// 	letters++;
+	// }
     
   if (dir_block == 9) {
       memcpy(fs->root_dir, current_dir, sizeof(fs->root_dir));
