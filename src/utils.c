@@ -23,7 +23,14 @@ void set_args(const char *frm, const char *to, char *command, char *arg1,
   (*iter)++;
 }
 
+void reset_args(char* command, char* arg1, char* arg2) {
+  command[0] = '\0';
+  arg1[0] = '\0';
+  arg2[0] = '\0';
+}
+
 void split_user_input(const char *s, char *command, char *arg1, char *arg2) {
+  reset_args(command, arg1, arg2);
   const char *start;
   int iter = 0;
   int state = ' ';

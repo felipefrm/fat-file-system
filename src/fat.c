@@ -274,7 +274,7 @@ void fat_fs_unlink(fat_fs *fs, char *name) {
   }
 
   if (i == ENTRY_SIZE) {
-    fprintf(stderr, "Não foi possível criar o arquivo especificado.\n");
+    fprintf(stderr, "Não foi possível deletar o arquivo/diretório especificado.\n");
     return;
   }
   if (current_dir[i].attributes == 0) {
@@ -447,7 +447,7 @@ void fat_fs_read(fat_fs *fs, char *name) {
   }
 }
 void fat_fs_append(fat_fs *fs, char *string, char *name) {
-  int i, j, num_characters = strlen(string)+1,fat_next_block = FIRST_DATA_CLUSTER;
+  int i, num_characters = strlen(string)+1,fat_next_block = FIRST_DATA_CLUSTER;
   /* int num_required_blocks = ceil((double)num_characters * sizeof(char) / CLUSTER_SIZE); */
   int num_characters_to_write = num_characters;
   dir_entry_t current_dir[ENTRY_SIZE];

@@ -21,11 +21,6 @@ int main() {
         fgets(buffer, sizeof(buffer), stdin);
         buffer[strcspn(buffer, "\n")] = '\0';
         setbuf(stdin, NULL);
-
-        command[0] = '\0';
-        arg1[0] = '\0';
-        arg2[0] = '\0';
-
         split_user_input(buffer, command, arg1, arg2);
 
         if (start == 0 && !STR_EQUAL(command, "init") && 
@@ -94,7 +89,6 @@ int main() {
                 else if (arg1[0] != '"' || arg1[strlen(arg1)-1] != '"') 
                     fprintf(stderr, "A string deve estar entre aspas.\n");
                 else {
-                    //snprintf(arg1, sizeof(arg1), "%s", removeQuotes(arg1));
                     remove_quotes(arg1);
                     fat_fs_append(fs,arg1,arg2);
                 }
