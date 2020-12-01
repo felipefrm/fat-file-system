@@ -11,8 +11,8 @@
 int fat_fs_get_empty_entry(dir_entry_t* current_dir) {
   int empty_entry;
   for (empty_entry = 0; empty_entry < ENTRY_SIZE; empty_entry++)
-  if (current_dir[empty_entry].first_block == 0)
-    break;
+    if (current_dir[empty_entry].first_block == 0)
+      break;
   return empty_entry;
 }
 
