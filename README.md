@@ -5,7 +5,7 @@
 $ Make
 ```
 
-2. Exeucte: 
+2. Execute: 
 ```
 $ ./fatshell
 ```
@@ -14,4 +14,3 @@ $ ./fatshell
 ```
 $ ./fatshell < [arquivo]
 ```
-Por exemplo: ./fatshell < instance1.txt
