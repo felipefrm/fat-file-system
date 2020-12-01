@@ -181,6 +181,11 @@ void fat_fs_mkdir(fat_fs *fs, char *dir) {
       break;
   }
 
+  if(first_block == FAT_ENTRIES){
+    fprintf(stderr,"Não há mais espaço no disco.\n");
+    exit(1);
+  }
+
   fs->fat[first_block] = 0xffff;
   current_dir[empty_entry].first_block = first_block;
 
@@ -386,6 +391,10 @@ void fat_fs_write(fat_fs *fs, char *string, char *name) {
         for (; fat_next_block < FAT_ENTRIES; fat_next_block++) {
           if (fs->fat[fat_next_block] == 0x0000)
             break;
+        }
+        if(fat_next_block == FAT_ENTRIES){
+          fprintf(stderr,"Não há mais espaço no disco.\n");
+          exit(1);
         }
         *block = fat_next_block;
       }
