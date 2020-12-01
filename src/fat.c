@@ -286,12 +286,6 @@ void fat_fs_unlink(fat_fs *fs, char *name) {
     fprintf(stderr, "Não foi possível deletar o arquivo/diretório especificado.\n");
     return;
   }
-  for (i = 0; i < ENTRY_SIZE; i++) {
-    if (current_dir[i].first_block != 0 &&
-        strcmp((char *)current_dir[i].filename, last_name) == 0) {
-      break;
-    }
-  }
 
   i = fat_fs_check_exists(current_dir, last_name, fat_fs_check_exists_path);
 
