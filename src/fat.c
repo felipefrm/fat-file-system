@@ -4,6 +4,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <stdbool.h>
 
 #define MIN(a,b) (((a)<(b))?(a):(b))
 #define MAX(a,b) (((a)>(b))?(a):(b))
@@ -15,6 +16,25 @@ int fat_fs_get_empty_entry(dir_entry_t* current_dir) {
       break;
   return empty_entry;
 }
+
+bool fat_fs_check_exists_file(dir_entry_t* dir,char* last_name){
+  return current_dir[i].first_block != 0 &&
+    current_dir[i].attributes == 0 &&
+    strcmp((char *)current_dir[i].filename, last_name) == 0;
+}
+bool fat_fs_check_exists_path(dir_entry_t* dir,char* last_name){
+  return current_dir[i].first_block != 0 &&
+    strcmp((char *)current_dir[i].filename, last_name) == 0;
+}
+bool fat_fs_check_exists(dir_entry_t* dir,char *last_name, bool cmp(dir_entry_t*, char*)){
+  for (i = 0; i < ENTRY_SIZE; i++) {
+    if (cmp(dir,last_name)) {
+      return true;
+    }
+  }
+  return false;
+}
+
 
 void fat_fs_free(fat_fs *fat_fs) {
   if (fat_fs != NULL) {
