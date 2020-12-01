@@ -506,7 +506,7 @@ void fat_fs_append(fat_fs *fs, char *string, char *name) {
   }
   
   while (num_characters_to_write!=0) {
-    for (; fat_next_block < 4096; fat_next_block++) {
+    for (; fat_next_block < FAT_ENTRIES; fat_next_block++) {
       if (fs->fat[fat_next_block] == 0x0000)
         break;
     }
