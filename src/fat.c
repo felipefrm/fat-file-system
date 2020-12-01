@@ -495,7 +495,6 @@ void fat_fs_append(fat_fs *fs, char *string, char *name) {
   
   uint16_t *block = &(current_dir[i].first_block), *next_block = &(fs->fat[*block]);
   int fat_next_block = FIRST_DATA_CLUSTER;
->>>>>>> 3fd0bf871036f67dd6fdeca90499faf48245a385
   uint8_t empty_cluster[CLUSTER_SIZE];
   char block_content[CLUSTER_SIZE];
   memset(empty_cluster, 0, CLUSTER_SIZE * sizeof(uint8_t));
