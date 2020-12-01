@@ -22,19 +22,21 @@ bool fat_fs_check_exists_file(dir_entry_t* current_dir,char* last_name){
     current_dir->attributes == 0 &&
     strcmp((char *)current_dir->filename, last_name) == 0;
 }
+
 bool fat_fs_check_exists_path(dir_entry_t* current_dir,char* last_name){
   return current_dir->first_block != 0 &&
     strcmp((char *)current_dir->filename, last_name) == 0;
 }
-bool fat_fs_check_exists(dir_entry_t* dir,char *last_name, bool cmp(dir_entry_t*, char*)){
-  for (int i = 0; i < ENTRY_SIZE; i++) {
+
+int fat_fs_check_exists(dir_entry_t* dir,char *last_name, bool cmp(dir_entry_t*, char*)){
+  int i;
+  for (i = 0; i < ENTRY_SIZE; i++) {
     if (cmp(dir,last_name)) {
-      return true;
+      return i;
     }
   }
-  return false;
+  return i;
 }
-
 
 void fat_fs_free(fat_fs *fat_fs) {
   if (fat_fs != NULL) {
@@ -146,7 +148,7 @@ char *fat_fs_find_base_dir(fat_fs *fs, char *dir, dir_entry_t *current_dir,
 
 void fat_fs_mkdir(fat_fs *fs, char *dir) {
 
-  int j, empty_entry;
+  int empty_entry;
   dir_entry_t current_dir[ENTRY_SIZE];
   int dir_block;
   char *last_name;
@@ -155,14 +157,12 @@ void fat_fs_mkdir(fat_fs *fs, char *dir) {
     fprintf(stderr, "Não foi possível criar o diretorio especificado.\n");
     return;
   }
-  for (j = 0; j < ENTRY_SIZE; j++) {
-    if (current_dir[j].first_block != 0 &&
-        strcmp((char *)current_dir[j].filename, last_name) == 0) {
-      fprintf(
-          stderr,
-          "Não foi possível criar o diretorio especificado, ele já existe.\n");
-      return;
-    }
+
+  if (fat_fs_check_exists(current_dir, last_name, fat_fs_check_exists_path) != ENTRY_SIZE) {
+    fprintf(
+        stderr,
+        "Não foi possível criar o diretorio especificado, ele já existe.\n");
+    return;
   }
 
   empty_entry = fat_fs_get_empty_entry(current_dir);
@@ -235,7 +235,7 @@ void fat_fs_ls(fat_fs *fs, char *dir) {
 
 void fat_fs_create(fat_fs *fs, char *name) {
 
-  int j, empty_entry;
+  int empty_entry;
   dir_entry_t current_dir[ENTRY_SIZE];
   // memcpy(current_dir, fs->root_dir, sizeof(current_dir));
   int dir_block;
@@ -246,14 +246,11 @@ void fat_fs_create(fat_fs *fs, char *name) {
     return;
   }
 
-  for (j = 0; j < ENTRY_SIZE; j++) {
-    if (current_dir[j].first_block != 0 &&
-        strcmp((char *)current_dir[j].filename, last_name) == 0) {
-      fprintf(
-          stderr,
-          "Não foi possível criar o arquivo especificado, ele já existe.\n");
-      return;
-    }
+  if (fat_fs_check_exists(current_dir, last_name, fat_fs_check_exists_path) != ENTRY_SIZE) {
+    fprintf(
+        stderr,
+        "Não foi possível criar o arquivo especificado, ele já existe.\n");
+    return;
   }
 
   empty_entry = fat_fs_get_empty_entry(current_dir);
@@ -296,10 +293,13 @@ void fat_fs_unlink(fat_fs *fs, char *name) {
     }
   }
 
+  i = fat_fs_check_exists(current_dir, last_name, fat_fs_check_exists_path);
+
   if (i == ENTRY_SIZE) {
     fprintf(stderr, "Não foi possível deletar o arquivo/diretório especificado.\n");
     return;
   }
+
   if (current_dir[i].attributes == 0) {
     // file
 
@@ -371,17 +371,14 @@ void fat_fs_write(fat_fs *fs, char *string, char *name) {
     fprintf(stderr, "Não foi possível escrever no arquivo especificado.\n");
     return;
   }
-  for (i = 0; i < ENTRY_SIZE; i++) {
-    if (current_dir[i].first_block != 0 &&
-        strcmp((char *)current_dir[i].filename, last_name) == 0) {
-      break;
-    }
-  }
+
+  i = fat_fs_check_exists(current_dir, last_name, fat_fs_check_exists_path);
 
   if (i == ENTRY_SIZE) {
     fprintf(stderr, "Não foi possível escrever no arquivo especificado.\n");
     return;
   }
+
   uint16_t *block = &current_dir[i].first_block, *next_block = NULL;
   i = 0;
   int fat_next_block = FIRST_DATA_CLUSTER;
@@ -444,14 +441,10 @@ void fat_fs_read(fat_fs *fs, char *name) {
     fprintf(stderr, "Não foi possível ler o arquivo especificado.\n");
     return;
   }
-  for (i = 0; i < ENTRY_SIZE; i++) {
-    if (current_dir[i].first_block != 0 &&
-        current_dir[i].attributes == 0 &&
-        strcmp((char *)current_dir[i].filename, last_name) == 0) {
-      break;
-    }
-  }
-   if (i == ENTRY_SIZE) {
+
+  i = fat_fs_check_exists(current_dir, last_name, fat_fs_check_exists_file);
+
+  if (i == ENTRY_SIZE) {
     fprintf(stderr, "Não foi possível ler o arquivo especificado.\n");
     return;
   }
@@ -482,18 +475,14 @@ void fat_fs_append(fat_fs *fs, char *string, char *name) {
     fprintf(stderr, "Não foi possível escrever no arquivo especificado.\n");
     return;
   }
-  for (i = 0; i < ENTRY_SIZE; i++) {
-    if (current_dir[i].first_block != 0 &&
-        strcmp((char *)current_dir[i].filename, last_name) == 0) {
-      break;
-    }
-  }
+  
+  i = fat_fs_check_exists(current_dir, last_name, fat_fs_check_exists_path);
 
-  if (i == 32) {
+  if (i == ENTRY_SIZE) {
     fprintf(stderr, "Não foi possível escrever no arquivo especificado.\n");
     return;
   }
-  
+
   uint16_t *block = &(current_dir[i].first_block), *next_block = &(fs->fat[*block]);
   uint8_t empty_cluster[CLUSTER_SIZE];
   char block_content[CLUSTER_SIZE];
