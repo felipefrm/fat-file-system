@@ -145,7 +145,7 @@ void fat_fs_mkdir(fat_fs *fs, char *dir) {
     }
   }
 
-  empty_entry = get_empty_entry(current_dir);
+  empty_entry = fat_fs_get_empty_entry(current_dir);
 
   if (empty_entry == ENTRY_SIZE) {
     fprintf(stderr, "Não foi possível criar o diretorio especificado.\n");
@@ -236,7 +236,7 @@ void fat_fs_create(fat_fs *fs, char *name) {
     }
   }
 
-  empty_entry = get_empty_entry(current_dir);
+  empty_entry = fat_fs_get_empty_entry(current_dir);
 
   if (empty_entry == ENTRY_SIZE) {
     fprintf(stderr, "Não foi possível criar o arquivo especificado.\n");
